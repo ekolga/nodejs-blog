@@ -1,9 +1,13 @@
 const {Router} = require('express');
 const router   = Router();
+const Article  = require('../models/article');
 
-router.get('/', (req, res) => {
+router.get('/', async (req, res) => {
+    const articles = await Article.getAll();
+    console.log(articles);
     res.render('index', {
-        title: `Edward's blog`
+        title: `Edward's blog`,
+        articles
     })
 });
 

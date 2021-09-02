@@ -1,20 +1,25 @@
-const path = require('path');
-const fs   = require('fs');
+const path           = require('path');
+const fs             = require('fs');
+const { v4: uuidv4 } = require('uuid');
 
 class Article {
     constructor(title, text) {
-        this.title = title;
-        this.text  = text;
+        this.title      = title;
+        this.text       = text;
+        this.id         = uuidv4();
+        this.created_at = new Date(Date.now()).toISOString();
     }
 
     toJSON() {
-        return JSON.stringify({
+        return {
             title: this.title,
-            text: this.text
-        });
+            text: this.text,
+            id: this.id,
+            created_at: this.created_at
+        };
     }
 
-    readDataFile() {
+    static getAll() {
         return new Promise((resolve, reject) => {
             fs.readFile(path.join(__dirname, '..', 'data', 'articles.json'), 'utf-8', (err, data) => {
                 if (err) reject(err);
@@ -25,9 +30,9 @@ class Article {
     }
 
     async save() {
-        const fileContent = await this.readDataFile();
+        const fileContent = await Article.getAll();
         fileContent.push(this.toJSON());
-        
+
         const writeStream = fs.createWriteStream(path.join(__dirname, '..', 'data', 'articles.json'), {
             encoding: 'utf-8',
             flags: 'r+'
@@ -40,6 +45,18 @@ class Article {
         writeStream.end(JSON.stringify(fileContent), err => {
             if (err) throw err;
         });
+    }
+
+    static getTitle(id) {
+        return this.title;
+    }
+
+    static getText(id) {
+        return this.text;
+    }
+
+    static getId() {
+        return this.id;
     }
 }
 
