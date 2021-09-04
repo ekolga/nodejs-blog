@@ -16,6 +16,7 @@
   "author": "Eduard Kolga <kolgaeduard@gmail.com>",
   "license": "ISC",
   "dependencies": {
+    "date-fns": "^2.23.0",
     "express": "^4.17.1",
     "express-handlebars": "^5.3.3",
     "uuid": "^8.3.2"

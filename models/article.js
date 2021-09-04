@@ -1,13 +1,15 @@
 const path           = require('path');
 const fs             = require('fs');
 const { v4: uuidv4 } = require('uuid');
+const fnsDate        = require('date-fns/format')
 
 class Article {
     constructor(title, text) {
-        this.title      = title;
-        this.text       = text;
-        this.id         = uuidv4();
-        this.created_at = new Date(Date.now()).toISOString();
+        this.title        = title;
+        this.text         = text;
+        this.id           = uuidv4();
+        this.created_at   = new Date(Date.now()).toISOString();
+        this.visible_date = fnsDate(new Date(Date.now()), 'PPP')
     }
 
     toJSON() {
@@ -15,7 +17,8 @@ class Article {
             title: this.title,
             text: this.text,
             id: this.id,
-            created_at: this.created_at
+            created_at: this.created_at,
+            visible_date: this.visible_date
         };
     }
 
