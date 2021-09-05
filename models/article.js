@@ -9,7 +9,7 @@ class Article {
         this.text         = text;
         this.id           = uuidv4();
         this.created_at   = new Date(Date.now()).toISOString();
-        this.visible_date = fnsDate(new Date(Date.now()), 'PPP')
+        this.visible_date = fnsDate(new Date(Date.now()), 'PPP');
     }
 
     toJSON() {
@@ -22,7 +22,7 @@ class Article {
         };
     }
 
-    static getAll() {
+    static async getAll() {
         return new Promise((resolve, reject) => {
             fs.readFile(path.join(__dirname, '..', 'data', 'articles.json'), 'utf-8', (err, data) => {
                 if (err) reject(err);
@@ -34,20 +34,26 @@ class Article {
 
     async save() {
         const fileContent = await Article.getAll();
+
         fileContent.push(this.toJSON());
 
-        const writeStream = fs.createWriteStream(path.join(__dirname, '..', 'data', 'articles.json'), {
-            encoding: 'utf-8',
-            flags: 'r+'
-        });
-
-        writeStream.on('finish', () => {
-            console.log(`The new article "${this.title}" has been succesfully saved!`);
-        });
-
-        writeStream.end(JSON.stringify(fileContent), err => {
+        fs.writeFile(path.join(__dirname, '..', 'data', 'articles.json'), JSON.stringify(fileContent), err => {
             if (err) throw err;
-        });
+
+            console.log(`The new article "${article.title}" has been succesfully saved!`);
+        })
+    }
+
+    static async update(article) {
+        const articles  = await Article.getAll();
+        const index     = articles.findIndex(a => a.id === article.id);
+        articles[index] = article;
+
+        fs.writeFile(path.join(__dirname, '..', 'data', 'articles.json'), JSON.stringify(articles), err => {
+            if (err) throw err;
+
+            console.log(`The new article "${article.title}" has been succesfully edited!`);
+        })
     }
 
     static getTitle(id) {

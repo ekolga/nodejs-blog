@@ -24,4 +24,19 @@ router.route('/add')
     res.redirect('/');
 });
 
+router.route('/edit/:id')
+.get(async (req, res) => {
+    const article = await Article.getOneById(req.params.id);
+
+    res.render('edit-article', {
+        title: `'${article.title}' editing`,
+        article
+    });
+})
+.post(async (req, res) => {
+    await Article.update(req.body);
+
+    res.redirect('/');
+})
+
 module.exports = router;

@@ -1,0 +1,269 @@
+/*
+1. General
+2. Header
+3. Left-side block
+4. Middle block
+5. Footer
+6. Article page
+7. Adaptive design start
+*/
+
+
+/* 1.General */
+*,
+*:before,
+*:after {
+    box-sizing: border-box;
+}
+
+h1, h2, h3, h4, h5, h6, body, p {
+    margin: 0;
+}
+
+.main-container {
+    max-width: 1200px;
+    max-height: 100000px;
+    margin: 0 auto;
+
+    font-family: 'Oxygen', sans-serif;
+    color: midnightblue;
+}
+
+a {
+    text-decoration: none;
+    color: midnightblue;
+}
+
+p {
+    margin: 0 0 15px;
+}
+
+/*2. Header */
+header {
+    border-bottom: 2px solid black;
+    height: 150px;
+    max-height: 10000px;
+
+    display: flex;
+    background-color: purple;
+    align-items: flex-end;
+    justify-content: space-between;
+}
+
+.header__logo {
+    font-family: 'Kanit', sans-serif;
+    font-size: 35px;
+    color: white;
+
+    padding: 10px;
+    margin-left: 20px;
+    align-self: flex-start;
+}
+
+.header__navigation {
+    margin-bottom: 5px;
+}
+
+.header__navigation a {
+    font-size: 22px;
+    text-decoration: none;
+    text-transform: uppercase;
+    color: white;
+    font-family: 'Oxygen', sans-serif;
+
+    padding-left: 5px;
+    padding-right: 5px;
+    margin-right: 20px;
+}
+
+.header__navigation a:hover {
+    color: purple;
+    background-color: white;
+}
+
+.header__navigation a:nth-child(3) {
+    display: none; /* We don't display "Contact me" link on full-size screens */
+}
+
+/* 3. Left-side block*/
+.left-side-block {
+    float: left;
+    max-width: 20%;
+    max-height: 100%;
+    padding: 20px;
+}
+
+#left-side-block__profile-logo {
+    width: 200px;
+    max-width: 100%;
+    border-radius: 100px;
+}
+
+.left-side-block__user-name {
+    text-align: center;
+    margin: 10px;
+
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.left-side-block__speciality {
+    text-align: center;
+    margin: 10px;
+
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.left-side-block__media-buttons {
+    display: flex;
+    justify-content: space-around;
+    padding-right: 10px;
+    padding-left: 10px;
+    padding-top: 10px;
+}
+
+.left-side-block__telegram {
+    fill: #60b5ff;
+}
+
+.left-side-block__linkedin {
+    fill: #0a66c2
+}
+
+/* 4. Middle body */
+.body-container {
+    float: left;
+    max-height: 100%;
+}
+
+.body-content {
+    float: left;
+    max-width: 80%;
+    padding: 20px;
+}
+
+article {
+    font-size: 18px;
+}
+
+.article {
+    margin-bottom: 30px;
+    position: relative;
+}
+
+.article__post-date {
+    font-size: 15px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.article__preview {
+    margin-bottom: 30px;
+}
+
+.article__like-button, .article__comment-button, .article__more-button {
+    margin-left: 10px;
+    margin-right: 10px;
+
+    text-decoration: none;
+}
+
+.article__more-button {
+    position: absolute;
+    right: 0;
+}
+
+/* 5. Footer*/
+.footer-container {
+    float: left;
+    width: 1200px;
+    max-width: 100%;
+    height: 30px;
+
+    text-align: center;
+    border-top: 1px solid gray;
+}
+
+.footer-container__footer {
+    padding: 10px;
+
+    font-size: 14px;
+}
+
+
+/* 6. Article page */
+.post {
+    float: left;
+    max-width: 80%;
+    padding: 20px;
+}
+
+.post__post-date {
+    font-size: 15px;
+
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+/* 7. Adaptive design start */
+@media (max-width: 1200px) {
+    .main-container {
+        max-width: 970px;
+    }
+}
+
+@media (max-width: 992px) {
+    .main-container {
+        max-width: 750px;
+    }
+
+    .left-side-block__media-buttons {
+        justify-content: space-between;
+        padding-right: 5px;
+        padding-left: 5px;
+    }
+}
+
+@media (max-width: 767px) {
+    .main-container {
+        max-width: none;
+    }
+
+    .header__logo {
+        font-size: 22px;
+
+        margin: 0 auto;
+     }
+
+    .header__navigation a:nth-child(3) {
+        display: inline;
+    }
+
+    .left-side-block {
+        display: none;
+    }
+
+    .body-content {
+        max-width: 100%;
+    }
+
+    header {
+        flex-direction: column;
+    }
+
+    .header__navigation {
+        margin: 0 auto 5px;
+    }
+
+    .header__navigation a {
+        margin-right: 7px;
+        margin-left: 7px;
+        
+        font-family: 'Oxygen', sans-serif;
+    }
+
+    .post {
+        max-width: 100%;
+    }
+}

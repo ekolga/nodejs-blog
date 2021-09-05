@@ -1,6 +1,7 @@
 const homeRoutes    = require('./routes/home');
 const articleRoutes = require('./routes/article');
 const topicsRoutes  = require('./routes/topics');
+const path          = require('path');
 const express       = require('express');
 const app           = express();
 const exphbs        = require('express-handlebars');
@@ -13,7 +14,7 @@ const hbs           = exphbs.create({
 app.engine('hbs', hbs.engine);
 app.set('view engine', 'hbs');
 app.set('views', 'views');
-app.use(express.static('public'));
+app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.urlencoded({extended: true}));
 
 // Routes registration
