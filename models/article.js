@@ -61,6 +61,12 @@ class Article {
     static getId() {
         return this.id;
     }
+
+    static async getOneById(id) {
+        const articles = await Article.getAll();
+
+        return articles.find(article => article.id === id);
+    }
 }
 
 module.exports = Article;
