@@ -2,12 +2,12 @@
 <h1>Edit "{{article.title}}" article</h1>
 
   <div class="row">
-    <form action='/article/edit/{{article.id}}' method="POST">
+    <form action='/article/edit/{{article._id}}' method="POST">
       <div class="row">
         <div class="input-field">
           <input id="title" name='title' class="edit_article" value="{{article.title}}" required></input>
           <input id="text" name='text' class="edit_article" value="{{article.text}}" required></input>
-          <input type="hidden" id="id" name="id" value="{{article.id}}"></input>
+          <input type="hidden" id="id" name="id" value="{{article._id}}"></input>
           <input type="hidden" id="created_at" name="created_at" value="{{article.created_at}}"></input>
           <input type="hidden" id="visible_date" name="visible_date" value="{{article.visible_date}}"></input>
         </div>

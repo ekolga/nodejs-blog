@@ -54,7 +54,7 @@ router.route('/edit/:id')
 .post(async (req, res) => {
     const { id } = req.body;
     delete req.body.id;
-
+    console.log(id)
     try {
         await Article.findByIdAndUpdate(id, req.body);
 
