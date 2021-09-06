@@ -5,6 +5,7 @@ const path          = require('path');
 const express       = require('express');
 const app           = express();
 const exphbs        = require('express-handlebars');
+const mongoose      = require('mongoose');
 const hbs           = exphbs.create({
     defaultLayout: 'main',
     extname: 'hbs'
@@ -22,5 +23,16 @@ app.use('/', homeRoutes);
 app.use('/article', articleRoutes);
 app.use('/topics', topicsRoutes);
 
-// Starting the server
-app.listen(8000);
+// Starting the server and connecting to the database
+async function start() {
+    const urlToDb = 'mongodb+srv://admin:5TeQ6ZlFe80jAyDU@blog.wbumg.mongodb.net/myFirstDatabase?retryWrites=true&w=majority'
+
+    try {
+        await mongoose.connect(urlToDb, {useNewUrlParser: true});
+        app.listen(8000);
+    } catch (e) {
+        console.error(e);
+    }
+}
+
+start();

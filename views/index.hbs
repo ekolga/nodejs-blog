@@ -3,13 +3,13 @@
         {{#each articles}}
             <div class="article">
                 <div class="article__title">
-                    <a href="/article/view/{{id}}" target="_blank"><h1>{{title}}</h1></a>
+                    <a href="/article/view/{{_id}}" target="_blank"><h1>{{title}}</h1></a>
                 </div>
                 <div class="article__post-date">
                     <span>{{visible_date}}</span>
                 </div>
                 <div class="article__preview">
-                    <article>{{text}}</article>
+                    <article>{{shortText}}</article>
                 </div>
                 <div class="article__buttons">
                     <a class="article__like-button" href="#">
