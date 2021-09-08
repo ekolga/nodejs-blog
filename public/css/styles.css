@@ -5,7 +5,8 @@
 4. Middle block
 5. Footer
 6. Article page
-7. Adaptive design start
+7. Comments section
+8. Adaptive design start
 */
 
 
@@ -133,7 +134,6 @@ header {
 
 /* 4. Middle body */
 .body-container {
-    float: left;
     max-height: 100%;
 }
 
@@ -206,7 +206,22 @@ article {
     margin-bottom: 10px;
 }
 
-/* 7. Adaptive design start */
+/* 7. Comments section */
+
+.comment {
+    max-width: 80%;
+    padding: 20px;
+    padding-left: 10px;
+}
+
+.comments__text {
+    display: flex;
+    text-align: left;
+    padding: 10px;
+    border: 1px solid gray;
+}
+
+/* 8. Adaptive design start */
 @media (max-width: 1200px) {
     .main-container {
         max-width: 970px;
