@@ -1,0 +1,11 @@
+        {{#if articleComments.length}}
+        {{#each articleComments}}
+        <div class="comments">
+            <div class="comments__name"><p>{{user.name}}</p></div>
+            <div class="comments__email"><p>{{user.email}}</p></div>
+            <div class="comments__text"><p>{{text}}</p></div>
+        </div>
+        {{/each}}
+        {{else}}
+        <h1>There is no comments yet.</h1>
+        {{/if}}

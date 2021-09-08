@@ -9,12 +9,28 @@ const articleSchema   = new Schema({
         required: true
     },
     shortText: String,
-    comments: [{ name: String, body: String, date: Date }],
+    comments: [{ 
+        user: {
+            type: Schema.Types.ObjectId,
+            ref: 'User'
+        }, 
+        text: String, 
+        date: Date 
+    }],
     tags: String,
-    created_at: Date,
+    created_at: {
+        type: Date,
+        default: new Date(Date.now).toISOString
+    },
     visible_date: String,
-    hidden: Boolean,
-    favorites: Number
+    hidden: {
+        type: Boolean,
+        default: false
+    },
+    favorites: {
+        type: Number,
+        default: 0
+    }
 });
 
 module.exports = model('Article', articleSchema)
