@@ -3,14 +3,22 @@ const router   = Router();
 const Article  = require('../models/article');
 const fnsDate  = require('date-fns/format')
 
-// View an article
+// View an article and comments to it
 router.get('/view/:id', async (req, res) => {
-    const article = await Article.findById(req.params.id).populate('comments.user', 'email name').lean();
+    try {
+        const article         = await Article.findById(req.params.id).populate('comments.user', 'email name').lean();
+        const articleComments = article.comments;
     
-    res.render('article', {
-        title: article.title,
-        article
-    })
+        res.render('article', {
+            title: article.title,
+            article,
+            articleComments
+        })
+    } catch (error) {
+        console.error(error);
+        res.redirect('/');
+    }
+    
 })
 
 // Post a comment

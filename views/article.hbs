@@ -1,9 +1,44 @@
-        <div class="post">
-            <div class="post__title"><h1>{{article.title}}</h1></div>
-            <div class="post__post-date">{{article.visible_date}}</div>
-            <div class="post__full">
-                <article>
-                    {{article.text}}
-                </article>
+<div class="post">
+    <div class="post__title">
+        <h1>{{article.title}}</h1>
+    </div>
+    <div class="post__post-date">{{article.visible_date}}</div>
+    <div class="post__full">
+        <article>
+            {{article.text}}
+        </article>
+    </div>
+    <div class="comments">
+        <h2 class="comments__section-title">Discussion</h2>
+        {{#if articleComments.length}}
+        {{#each articleComments}}
+        <div class="comment">
+            <div class="comment__date">
+                <p>{{date}}</p>
+            </div>
+            <div class="comment__user">
+                <p>{{user.email}}, <strong>{{user.name}}</strong> says:</p>
+            </div>
+            <div class="comment__text">
+                <p>{{text}}</p>
             </div>
         </div>
+        {{/each}}
+        <div class="comments post-new-comment">
+            <h3>Add a comment to this article:</h3>
+            <form action="/article/view/{{article._id}}/post-comment" method="POST">
+                <div class="row">
+                    <div class="input-field">
+                        <textarea id="username" name='username' class="post-new-comment__username" required></textarea>
+                        <textarea id="comment-text" name='comment-text' class="post-new-comment__text" required></textarea>
+                    </div>
+
+                    <button class="btn post-new-comment">Post the comment</button>
+                </div>
+            </form>
+        </div>
+        {{else}}
+        <p class="comments__no-comments">There is no comments yet.</p>
+        {{/if}}
+    </div>
+</div>

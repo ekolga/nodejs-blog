@@ -208,17 +208,38 @@ article {
 
 /* 7. Comments section */
 
+.comments__section-title {
+    margin-top: 15px;
+    border-top: 1px solid lightgray;
+    padding-top: 10px;
+}
+
 .comment {
     max-width: 80%;
     padding: 20px;
     padding-left: 10px;
 }
 
-.comments__text {
+.comment__text {
     display: flex;
     text-align: left;
     padding: 10px;
     border: 1px solid gray;
+}
+
+.post-new-comment h3 {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+p.comments__no-comments {
+    margin-top: 20px
+}
+
+.comments .post-new-comment {
+    max-width: 80%;
+    padding-left: 10px;
+    margin-top: 20px;
 }
 
 /* 8. Adaptive design start */
