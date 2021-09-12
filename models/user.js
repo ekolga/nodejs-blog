@@ -16,6 +16,10 @@ const userSchema      = new Schema({
         writtenTo: {
             type: Schema.Types.ObjectId,
             ref: 'Article'
+        },
+        comment: {
+            type: Schema.Types.ObjectId,
+            ref: 'Article'
         }
     }],
     role: {

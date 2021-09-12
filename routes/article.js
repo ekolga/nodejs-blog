@@ -2,6 +2,7 @@ const {Router} = require('express');
 const router   = Router();
 const Article  = require('../models/article');
 const fnsDate  = require('date-fns/format')
+const mongoose = require('mongoose');
 
 // View an article and comments to it
 router.get('/view/:id', async (req, res) => {
@@ -16,7 +17,6 @@ router.get('/view/:id', async (req, res) => {
         })
     } catch (error) {
         console.error(error);
-        res.redirect('/');
     }
     
 })
@@ -24,12 +24,28 @@ router.get('/view/:id', async (req, res) => {
 // Post a comment
 router.post('/view/:id/post-comment', async (req, res) => {
     try {
-        const article = await Article.findById(req.params.id).lean();
-        article.comments.push(req.body);
+        // Add a comment to an article
+        const commentMongoId = new mongoose.Types.ObjectId()
+        const article        = await Article.findById(req.params.id).lean();
+        const commentObject  = {
+            "_id": commentMongoId,
+            "text": req.body.text,
+            "date": req.body.date,
+            "user": req.body.user
+        }
+        article.comments.push(commentObject);
 
         await Article.findByIdAndUpdate(req.params.id, article);
+        
+        // Add a record about comment to a user
+        const userComments = [...req.user.comments];
 
-        // TODO: Add a record about new comment to a user object
+        userComments.push({
+            writtenTo: article._id,
+            comment: commentMongoId
+        })
+        req.user.comments = userComments;
+        req.user.save();
 
         res.end('Comment has been successfully added.');
     } catch (error) {

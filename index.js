@@ -1,6 +1,7 @@
 const homeRoutes    = require('./routes/home');
 const articleRoutes = require('./routes/article');
 const topicsRoutes  = require('./routes/topics');
+const loginRoutes  = require('./routes/login');
 const path          = require('path');
 const express       = require('express');
 const app           = express();
@@ -36,6 +37,14 @@ app.use(async (req, res, next) => {
 app.use('/', homeRoutes);
 app.use('/article', articleRoutes);
 app.use('/topics', topicsRoutes);
+app.use('/login', loginRoutes);
+app.use((req, res) => {
+    res.status(404).send('There is nothing to see.');
+})
+app.use((err, req, res, next) => {
+    console.error(err);
+    res.status(500).send(`It's a 500... I'm sorry, but something is probably broken right now.`);
+})
 
 // Starting the server and connecting to the database
 async function start() {
@@ -56,7 +65,6 @@ async function start() {
 
             await user.save();
         }
-
 
         app.listen(8000);
     } catch (e) {
