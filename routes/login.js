@@ -2,9 +2,15 @@ const {Router} = require('express');
 const router   = Router();
 const User     = require('../models/user');
 
+router.get('/', (req, res) => {
+    res.render('auth/auth', {
+        title: 'Log in or create a new account'
+    });
+})
+
 router.route('/register')
 .get(async (req, res) => {
-    res.render('register-page', {
+    res.render('auth/register-page', {
         title: `Registration`
     })
 })
@@ -30,21 +36,34 @@ router.route('/register')
     res.redirect('/');
 })
 
-router.route('/signin')
+router.route('/login')
 .get(async (req, res) => {
-    res.render('login-page', {
+    res.render('auth/login-page', {
         title: `Login`
     })
 })
 .post(async (req, res) => {
-    const user = await User.findOne({
-        email: req.body.email,
-        password: req.body.password
-    })
+    // const user = await User.findOne({
+    //     email: req.body.email,
+    //     password: req.body.password
+    // })
+    const user = await User.findById('6136cb142fa96ec8e16a120a');
 
     // Session cookie creation process
-    console.log('Logged in!')
-    res.redirect('/');
+    req.session.user       = user;
+    req.session.isLoggedIn = true;
+    req.session.save(err => {
+        if (err) throw err;
+
+        console.log('Logged in!');
+        res.redirect('/');
+    });
+})
+
+router.get('/logout', (req, res) => {
+    req.session.destroy(() => {
+        res.redirect('/');
+    });
 })
 
 module.exports = router;
