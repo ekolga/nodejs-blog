@@ -6,6 +6,7 @@ const path          = require('path');
 const express       = require('express');
 const app           = express();
 const session       = require('express-session');
+const csrf          = require('csurf');
 const MongoStore    = require('connect-mongodb-session')(session);
 const exphbs        = require('express-handlebars');
 const mongoose      = require('mongoose');
@@ -36,6 +37,9 @@ app.use(session({
     saveUninitialized: false,
     store
 }));
+
+// CSRF defence adding
+app.use(csrf());
 
  // Authorization check
 app.use(varMiddleware);

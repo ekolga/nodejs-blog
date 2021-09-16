@@ -10,6 +10,7 @@
           <input type="hidden" id="id" name="id" value="{{article._id}}"></input>
           <input type="hidden" id="created_at" name="created_at" value="{{article.created_at}}"></input>
           <input type="hidden" id="visible_date" name="visible_date" value="{{article.visible_date}}"></input>
+          <input name="_csrf" type="hidden" value="{{csrf}}">
         </div>
 
         <button class="btn edit_article" type="submit">Edit the article</button>
@@ -20,6 +21,7 @@
       <div class="row">
         <div class="input-field">
           <input type="hidden" id="id" name="id" value="{{article._id}}"></input>
+          <input name="_csrf" type="hidden" value="{{csrf}}">
         </div>
 
         <button class="btn delete_article" type="submit">Delete the article</button>

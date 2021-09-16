@@ -37,11 +37,12 @@
             <form action="/article/view/{{article._id}}/post-comment" method="POST">
                 <div class="row">
                     <div class="input-field">
-                        <label for="username">Name</label>
-                        <input id="username" name='username' class="post-new-comment__username" required></input>
+                        <label for="username">Your name:</label>
+                        <input id="username" name='username' class="post-new-comment__username" value="{{user.name}}" disabled required></input>
                         <input id="email" name='email' class="post-new-comment__email" type="hidden" value="{{user.email}}" required></input>
+                        <input name="_csrf" type="hidden" value="{{csrf}}">
                         <br>
-                        <label for="text">Your comment</label>
+                        <label for="text">Your comment:</label>
                         <textarea id="text" name='text' class="post-new-comment__text" required></textarea>
                     </div>
 

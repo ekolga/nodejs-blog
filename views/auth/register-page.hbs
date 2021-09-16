@@ -7,6 +7,7 @@
             <input id="password" name='password' class="register__password" value="" required></input><br>
             <label for="name">Name:</label><br>
             <input id="name" name='name' class="register__name" value="" required></input><br>
+            <input name="_csrf" type="hidden" value="{{csrf}}">
 
             <button type="submit">Register</button>
         </form>

@@ -5,6 +5,7 @@
             <input id="email" name='email' class="login__email" value="" required></input><br>
             <label for="password">Password:</label><br>
             <input id="password" name='password' class="login__password" value="" required></input><br>
+            <input name="_csrf" type="hidden" value="{{csrf}}">
 
             <button type="submit">Login</button>
         </form>

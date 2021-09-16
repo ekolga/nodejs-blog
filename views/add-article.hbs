@@ -7,6 +7,7 @@
         <div class="input-field">
           <textarea id="title" name='title' class="add_article" required></textarea>
           <textarea id="text" name='text' class="add_article" required></textarea>
+          <input name="_csrf" type="hidden" value="{{csrf}}">
         </div>
 
         <button type="submit" class="btn add_article">Publish the article</button>
