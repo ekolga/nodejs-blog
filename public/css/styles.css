@@ -206,6 +206,15 @@ article {
     margin-bottom: 10px;
 }
 
+.post__admin-operations {
+    margin-top: 10px;
+}
+
+.post__admin-operations__edit-btn {
+    text-align: center;
+    border: 1px solid gray;
+}
+
 /* 7. Comments section */
 
 .comments__section-title {
@@ -237,9 +246,18 @@ p.comments__no-comments {
 }
 
 .comments .post-new-comment {
+    border-top: 1px solid gray;
     max-width: 80%;
     padding-left: 10px;
     margin-top: 20px;
+}
+
+.post-new-comment__username {
+
+}
+
+.post-new-comment__text {
+
 }
 
 /* 8. Adaptive design start */

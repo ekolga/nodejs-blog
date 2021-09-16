@@ -1,6 +1,6 @@
-const {Router} = require('express');
-const router   = Router();
-const User     = require('../models/user');
+const { Router } = require('express');
+const router = Router();
+const User = require('../models/user');
 
 router.get('/', (req, res) => {
     res.render('auth/auth', {
@@ -9,56 +9,73 @@ router.get('/', (req, res) => {
 })
 
 router.route('/register')
-.get(async (req, res) => {
-    res.render('auth/register-page', {
-        title: `Registration`
+    .get(async (req, res) => {
+        res.render('auth/register-page', {
+            title: `Registration`
+        })
     })
-})
-.post(async (req, res) => {
-    const existedUser = await User.findOne({
-        email: req.body.email
+    .post(async (req, res) => {
+        try {
+            const { email, password, name } = req.body;
+            const existedUser               = await User.findOne({ email })
+
+            if (existedUser) {
+                console.log('User already exists.');
+                res.redirect('/')
+            } else {
+                const user = new User({
+                    email,
+                    password,
+                    name,
+                    comments: []
+                });
+
+                await user.save();
+
+                res.redirect('/auth/login');
+            }
+        } catch (error) {
+            console.error(error);
+        }
     })
-
-    if (existedUser) {
-        console.log('User already exists.');
-
-        res.end('User already exists.')
-    }
-
-    const user = new User({
-        email: req.body.email,
-        password: req.body.password,
-        name: req.body.name,
-    });
-
-    user.save();
-
-    res.redirect('/');
-})
 
 router.route('/login')
-.get(async (req, res) => {
-    res.render('auth/login-page', {
-        title: `Login`
+    .get(async (req, res) => {
+        res.render('auth/login-page', {
+            title: `Login`
+        })
     })
-})
-.post(async (req, res) => {
-    // const user = await User.findOne({
-    //     email: req.body.email,
-    //     password: req.body.password
-    // })
-    const user = await User.findById('6136cb142fa96ec8e16a120a');
+    .post(async (req, res) => {
+        try {
+            const { email, password } = req.body;
+            const existedUser         = await User.findOne({ email });
 
-    // Session cookie creation process
-    req.session.user       = user;
-    req.session.isLoggedIn = true;
-    req.session.save(err => {
-        if (err) throw err;
+            if (existedUser) {
+                const arePasswordsTheSame = password === existedUser.password;
 
-        console.log('Logged in!');
-        res.redirect('/');
-    });
-})
+                if (arePasswordsTheSame) {
+                    // Session cookie creation process
+                    req.session.user       = existedUser;
+                    req.session.isLoggedIn = true;
+
+                    req.session.save(err => {
+                        if (err) throw err;
+
+                        console.log('Logged in!');
+                        res.redirect('/');
+                    });
+                } else {
+                    console.log('Incorrect password');
+                    res.redirect('/auth/login');
+                }
+            } else {
+                console.log('User does not exist');
+                res.redirect('/auth/register');
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    })
 
 router.get('/logout', (req, res) => {
     req.session.destroy(() => {

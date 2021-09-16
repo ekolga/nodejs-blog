@@ -1,8 +1,10 @@
-const {Router} = require('express');
-const router   = Router();
-const Article  = require('../models/article');
-const fnsDate  = require('date-fns/format')
-const mongoose = require('mongoose');
+const {Router}   = require('express');
+const router     = Router();
+const Article    = require('../models/article');
+const fnsDate    = require('date-fns/format')
+const mongoose   = require('mongoose');
+const adminCheck = require('../middlewares/adminCheck.js');
+const User       = require('../models/user');
 
 // View an article and comments to it
 router.get('/view/:id', async (req, res) => {
@@ -12,13 +14,13 @@ router.get('/view/:id', async (req, res) => {
     
         res.render('article', {
             title: article.title,
+            user: req.session.user,
             article,
             articleComments
         })
     } catch (error) {
         console.error(error);
     }
-    
 })
 
 // Post a comment
@@ -26,43 +28,31 @@ router.post('/view/:id/post-comment', async (req, res) => {
     try {
         // Add a comment to an article
         const commentMongoId = new mongoose.Types.ObjectId()
-        const article        = await Article.findById(req.params.id).lean();
+        let article          = await Article.findById(req.params.id).lean();
+        let user             = await User.findOne({email: req.body.email});
         const commentObject  = {
             "_id": commentMongoId,
             "text": req.body.text,
-            "date": req.body.date,
-            "user": req.body.user
+            "date": fnsDate(new Date(Date.now()), 'PPPppp'),
+            "user": user
         }
+
         article.comments.push(commentObject);
 
         await Article.findByIdAndUpdate(req.params.id, article);
         
         // Add a record about comment to a user
-        const userComments = [...req.user.comments];
+        const userComments = [...user.comments];
 
         userComments.push({
             writtenTo: article._id,
             comment: commentMongoId
         })
-        req.user.comments = userComments;
-        req.user.save();
 
-        res.end('Comment has been successfully added.');
-    } catch (error) {
-        console.error(error);
-    }
-})
+        user.comments = userComments;
+        user.save();
 
-// See comments to an article
-router.get('/view/:id/comments', async (req, res) => {
-    try {
-        const article         = await Article.findById(req.params.id).populate('comments.user', 'email name').lean();
-        const articleComments = article.comments;
-
-        res.render('article-comments', {
-            title: 'Discussion',
-            articleComments
-        })
+        res.end('Comment has been successfully added.'); // Add a page reload
     } catch (error) {
         console.error(error);
     }
@@ -70,12 +60,12 @@ router.get('/view/:id/comments', async (req, res) => {
 
 // Add a new article
 router.route('/add')
-.get((req, res) => {
+.get(adminCheck, (req, res) => {
     res.render('add-article', {
         title: `Add a new article`
     })
 })
-.post((req, res) => {
+.post(adminCheck, (req, res) => {
     const article = {
         title: req.body.title, 
         text: req.body.text,
@@ -101,7 +91,7 @@ router.route('/add')
 
 // Edit an article
 router.route('/edit/:id')
-.get(async (req, res) => {
+.get(adminCheck, async (req, res) => {
     const article = await Article.findById(req.params.id).lean();
 
     res.render('edit-article', {
@@ -109,7 +99,7 @@ router.route('/edit/:id')
         article
     });
 })
-.post(async (req, res) => {
+.post(adminCheck, async (req, res) => {
     const { id } = req.body;
     delete req.body.id;
     
@@ -125,7 +115,7 @@ router.route('/edit/:id')
 });
 
 // Delete an article
-router.post('/delete/:id', async (req, res) => {
+router.post('/delete/:id', adminCheck, async (req, res) => {
     try {
         await Article.findByIdAndDelete(req.body.id);
 

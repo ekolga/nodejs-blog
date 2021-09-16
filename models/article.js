@@ -15,7 +15,7 @@ const articleSchema   = new Schema({
             ref: 'User'
         }, 
         text: String, 
-        date: Date 
+        date: String 
     }],
     tags: String,
     created_at: {

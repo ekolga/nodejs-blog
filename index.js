@@ -28,12 +28,16 @@ app.set('view engine', 'hbs');
 app.set('views', 'views');
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.urlencoded({extended: true}));
+
+// Setting up sessions
 app.use(session({
     secret: 'some secret value',
     resave: false,
     saveUninitialized: false,
     store
 }));
+
+ // Authorization check
 app.use(varMiddleware);
 
 // Routes registration

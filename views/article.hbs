@@ -7,6 +7,11 @@
         <article>
             {{article.text}}
         </article>
+        {{#if isAdmin}}
+        <div class="post__admin-operations">
+            <a class="post__admin-operations__edit-btn" href="/article/edit/{{article._id}}">Edit</a>
+        </div>
+        {{/if}}
     </div>
     <div class="comments">
         <h2 class="comments__section-title">Discussion</h2>
@@ -24,21 +29,25 @@
             </div>
         </div>
         {{/each}}
+        {{else}}
+        <p class="comments__no-comments">There is no comments yet.</p>
+        {{/if}}
         <div class="comments post-new-comment">
             <h3>Add a comment to this article:</h3>
             <form action="/article/view/{{article._id}}/post-comment" method="POST">
                 <div class="row">
                     <div class="input-field">
-                        <textarea id="username" name='username' class="post-new-comment__username" required></textarea>
-                        <textarea id="comment-text" name='comment-text' class="post-new-comment__text" required></textarea>
+                        <label for="username">Name</label>
+                        <input id="username" name='username' class="post-new-comment__username" required></input>
+                        <input id="email" name='email' class="post-new-comment__email" type="hidden" value="{{user.email}}" required></input>
+                        <br>
+                        <label for="text">Your comment</label>
+                        <textarea id="text" name='text' class="post-new-comment__text" required></textarea>
                     </div>
 
                     <button class="btn post-new-comment">Post the comment</button>
                 </div>
             </form>
         </div>
-        {{else}}
-        <p class="comments__no-comments">There is no comments yet.</p>
-        {{/if}}
     </div>
 </div>
