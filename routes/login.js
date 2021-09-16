@@ -1,6 +1,7 @@
 const { Router } = require('express');
-const router = Router();
-const User = require('../models/user');
+const router     = Router();
+const bcrypt     = require('bcryptjs');
+const User       = require('../models/user');
 
 router.get('/', (req, res) => {
     res.render('auth/auth', {
@@ -23,9 +24,10 @@ router.route('/register')
                 console.log('User already exists.');
                 res.redirect('/')
             } else {
-                const user = new User({
+                const hashedPassword = await bcrypt.hash(password, 10);
+                const user           = new User({
                     email,
-                    password,
+                    password: hashedPassword,
                     name,
                     comments: []
                 });
@@ -51,7 +53,7 @@ router.route('/login')
             const existedUser         = await User.findOne({ email });
 
             if (existedUser) {
-                const arePasswordsTheSame = password === existedUser.password;
+                const arePasswordsTheSame = await bcrypt.compare(password, existedUser.password);
 
                 if (arePasswordsTheSame) {
                     // Session cookie creation process
