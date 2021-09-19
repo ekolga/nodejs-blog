@@ -1,13 +1,23 @@
 <div class="body-content">
     <div class="login">
+        {{#if error}}
+        <p class="alert error">{{error}}</p>
+        {{/if}}
+        {{#if success}}
+        <p class="alert success">{{success}}</p>
+        {{/if}}
+        {{#if passRestored}}
+        <p class="alert success">{{passRestored}}</p>
+        {{/if}}
         <form action="/auth/login" method="POST">
             <label for="email">Email:</label><br>
-            <input id="email" name='email' class="login__email" value="" required></input><br>
+            <input id="email" name='email' class="login__email" maxlength="70" required></input><br>
             <label for="password">Password:</label><br>
-            <input id="password" name='password' class="login__password" value="" required></input><br>
+            <input id="password" name='password' class="login__password" maxlength="70" required></input><br>
             <input name="_csrf" type="hidden" value="{{csrf}}">
 
-            <button type="submit">Login</button>
+            <button type="submit" class="login__btn">Login</button>
         </form>
+        <a class="login__password-restore" href="/auth/password-reset">I forgot my password</a>
     </div>
 </div>

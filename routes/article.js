@@ -29,7 +29,7 @@ router.post('/view/:id/post-comment', async (req, res) => {
         // Add a comment to an article
         const commentMongoId = new mongoose.Types.ObjectId()
         let article          = await Article.findById(req.params.id).lean();
-        let user             = await User.findOne({email: req.body.email}); // Add an ability to comment without being authorized
+        let user             = await User.findOne({ email: req.body.email }); // Add an ability to comment without being authorized
         const commentObject  = {
             "_id": commentMongoId,
             "text": req.body.text,

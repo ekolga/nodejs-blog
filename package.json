@@ -17,6 +17,7 @@
   "license": "ISC",
   "dependencies": {
     "bcryptjs": "^2.4.3",
+    "connect-flash": "^0.1.1",
     "connect-mongodb-session": "^3.1.0",
     "csurf": "^1.11.0",
     "date-fns": "^2.23.0",
@@ -24,6 +25,8 @@
     "express-handlebars": "^5.3.3",
     "express-session": "^1.17.2",
     "mongoose": "^6.0.4",
+    "nodemailer": "^6.6.3",
+    "nodemailer-sendgrid-transport": "^0.2.0",
     "uuid": "^8.3.2"
   },
   "devDependencies": {

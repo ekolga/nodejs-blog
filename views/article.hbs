@@ -32,23 +32,30 @@
         {{else}}
         <p class="comments__no-comments">There is no comments yet.</p>
         {{/if}}
+        {{#if isLoggedIn}}
         <div class="comments post-new-comment">
             <h3>Add a comment to this article:</h3>
             <form action="/article/view/{{article._id}}/post-comment" method="POST">
                 <div class="row">
                     <div class="input-field">
                         <label for="username">Your name:</label>
-                        <input id="username" name='username' class="post-new-comment__username" value="{{user.name}}" disabled required></input>
+                        <input id="username" name='username' class="post-new-comment__username" value="{{user.name}}" maxlength="70" disabled required></input>
                         <input id="email" name='email' class="post-new-comment__email" type="hidden" value="{{user.email}}" required></input>
                         <input name="_csrf" type="hidden" value="{{csrf}}">
                         <br>
                         <label for="text">Your comment:</label>
-                        <textarea id="text" name='text' class="post-new-comment__text" required></textarea>
+                        <textarea id="text" name='text' class="post-new-comment__text" maxlength="1000" required></textarea>
                     </div>
 
                     <button class="btn post-new-comment">Post the comment</button>
                 </div>
             </form>
         </div>
+        {{else}}
+        <div class="comments not-authorized">
+            <p><strong>You have to be authorized in order to write a comment.</strong></p>
+            <a class="comments__login-btn" href="/auth">Log in now</a>
+        </div>
+        {{/if}}
     </div>
 </div>

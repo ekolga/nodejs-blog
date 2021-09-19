@@ -1,15 +1,18 @@
 <div class="body-content">
     <div class="register">
+        {{#if registerError}}
+        <p>{{registerError}}</p>
+        {{/if}}
         <form action="/auth/register" method="POST">
             <label for="email">Email:</label><br>
-            <input id="email" name='email' class="register__email" value="" required></input><br>
+            <input id="email" name='email' class="register__email" maxlength="70" required></input><br>
             <label for="password">Password:</label><br>
-            <input id="password" name='password' class="register__password" value="" required></input><br>
+            <input id="password" name='password' class="register__password" maxlength="70" required></input><br>
             <label for="name">Name:</label><br>
-            <input id="name" name='name' class="register__name" value="" required></input><br>
+            <input id="name" name='name' class="register__name" maxlength="70" required></input><br>
             <input name="_csrf" type="hidden" value="{{csrf}}">
 
-            <button type="submit">Register</button>
+            <button type="submit" class="register__btn">Register</button>
         </form>
     </div>
 </div>

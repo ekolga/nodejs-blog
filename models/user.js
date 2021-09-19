@@ -22,6 +22,8 @@ const userSchema      = new Schema({
             ref: 'Article'
         }
     }],
+    restoreToken: String,
+    restoreTokenExpirationDate: Date,
     role: {
         type: String,
         required: true,

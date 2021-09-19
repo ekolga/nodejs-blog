@@ -5,6 +5,7 @@ const loginRoutes   = require('./routes/login');
 const path          = require('path');
 const express       = require('express');
 const app           = express();
+const flash         = require('connect-flash');
 const session       = require('express-session');
 const csrf          = require('csurf');
 const MongoStore    = require('connect-mongodb-session')(session);
@@ -16,11 +17,12 @@ const hbs           = exphbs.create({
     extname: 'hbs'
 });
 const varMiddleware = require('./middlewares/variables');
+const keys          = require('./keys');
+// End of import
 
-const MONGODB_URI = 'mongodb+srv://admin:5TeQ6ZlFe80jAyDU@blog.wbumg.mongodb.net/myFirstDatabase?retryWrites=true&w=majority';
 const store       = new MongoStore({
     collection: 'sessions',
-    uri: MONGODB_URI
+    uri: keys.MONGODB_URI
 })
 
 // Engine setup and static folder registration
@@ -32,7 +34,7 @@ app.use(express.urlencoded({extended: true}));
 
 // Setting up sessions
 app.use(session({
-    secret: 'some secret value',
+    secret: keys.secret,
     resave: false,
     saveUninitialized: false,
     store
@@ -40,6 +42,9 @@ app.use(session({
 
 // CSRF defence adding
 app.use(csrf());
+
+// Middleware for transportation errors to views
+app.use(flash());
 
  // Authorization check
 app.use(varMiddleware);
@@ -60,7 +65,7 @@ app.use((err, req, res, next) => {
 // Starting the server and connecting to the database
 async function start() {
     try {
-        await mongoose.connect(MONGODB_URI, {useNewUrlParser: true});
+        await mongoose.connect(keys.MONGODB_URI, {useNewUrlParser: true});
 
         app.listen(8000, () => console.log('Server is running...'));
     } catch (e) {
