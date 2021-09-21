@@ -3,9 +3,11 @@
         {{#if error}}
         <p class="alert error">{{error}}</p>
         {{/if}}
+
         {{#if success}}
         <p class="alert success">{{success}}</p>
         {{/if}}
+
         {{#if passRestored}}
         <p class="alert success">{{passRestored}}</p>
         {{/if}}
@@ -18,6 +20,8 @@
 
             <button type="submit" class="login__btn">Login</button>
         </form>
-        <a class="login__password-restore" href="/auth/password-reset">I forgot my password</a>
+        <div class="login__password-restore">
+            <a href="/auth/password-reset">I forgot my password</a>
+        </div>
     </div>
 </div>

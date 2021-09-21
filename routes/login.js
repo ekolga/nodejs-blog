@@ -24,33 +24,75 @@ router.route('/register')
     .get(async (req, res) => {
         res.render('auth/register-page', {
             title: `Registration`,
-            registerError: req.flash('registerError')
+            error: req.flash('error'),
+            success: req.flash('success')
         })
     })
     .post(async (req, res) => { // TODO: add symbols validation
         try {
             const { email, password, name } = req.body;
-            const existedUser               = await User.findOne({ email })
+            const existedUser               = await User.findOne({ email });
 
             if (existedUser) {
-                req.flash('registerError', 'User already exists.')
-                res.redirect('/auth/register')
-            } else {
+                req.flash('error', 'User already exists.');
+
+                return res.redirect('/auth/register');
+            }
+
+            crypto.randomBytes(32, async (err, buf) => {
+                if (err) {
+                    req.flash('error', 'Something went wrong. Please, try again and contact me to fix that issue.');
+
+                    return res.redirect('register');
+                }
+
                 const hashedPassword = await bcrypt.hash(password, 10);
+                const token          = buf.toString('hex');
                 const user           = new User({
                     email,
                     password: hashedPassword,
                     name,
-                    comments: []
+                    comments: [],
+                    registrationToken: token
                 });
 
                 await user.save();
 
-                req.flash('success', 'Your account has been successfully created!')
-                res.redirect('/auth/login');
+                req.flash('success', 'Your account has been successfully created! However, you cannot log in yet. Check your email to finish the registration process.')
+                res.redirect('login');
 
-                await trasporter.sendMail(registerEmailConfig(email));
+                await trasporter.sendMail(registerEmailConfig(email, token));
+            })
+        } catch (error) {
+            console.error(error);
+        }
+    });
+
+router.route('/register/confirm/:token')
+    .get(async (req, res) => {
+        if (!req.params.token) {
+            return res.redirect('/auth/login'); // Redirect doesn't work
+        }
+
+        try {
+            const user = await User.findOne({
+                registrationToken: req.params.token,
+                isActivated: false
+            });
+
+            if (!user) {
+                req.flash('error', `You can't access this link. Seems like you're already activated.`);
+
+                return res.redirect('/auth/login');
             }
+
+            user.registrationToken = undefined;
+            user.isActivated       = true;
+
+            await user.save();
+
+            req.flash('success', 'User has been successfully activated!');
+            res.redirect('/auth/login');
         } catch (error) {
             console.error(error);
         }
@@ -69,28 +111,51 @@ router.route('/login')
             const { email, password } = req.body;
             const existedUser         = await User.findOne({ email });
 
-            if (existedUser) {
-                const arePasswordsTheSame = await bcrypt.compare(password, existedUser.password);
-
-                if (arePasswordsTheSame) {
-                    // Session cookie creation process
-                    req.session.user       = existedUser;
-                    req.session.isLoggedIn = true;
-
-                    req.session.save(err => {
-                        if (err) throw err;
-
-                        console.log('Logged in!');
-                        res.redirect('/');
-                    });
-                } else {
-                    req.flash('error', 'Incorrect password')
-                    res.redirect('/auth/login');
-                }
-            } else {
+            if (!existedUser) {
                 req.flash('error', `User doesn't exist`)
-                res.redirect('/auth/login');
+
+                return res.redirect('/auth/login');
             }
+
+            const arePasswordsTheSame = await bcrypt.compare(password, existedUser.password);
+
+            if (!arePasswordsTheSame) {
+                req.flash('error', 'Incorrect password')
+
+                return res.redirect('/auth/login');
+            }
+
+            if (!existedUser.isActivated) {
+                req.flash('error', `User isn't activated yet. Please, check your email, we've resent the activation code.`);
+                res.redirect('/auth/login');
+
+                crypto.randomBytes(32, async (err, buf) => {
+                    if (err) {
+                        req.flash('error', 'Something went wrong. Please, try again and contact me to fix that issue.');
+    
+                        return res.redirect('/auth/login');
+                    }
+    
+                    const token                   = buf.toString('hex');
+                    existedUser.registrationToken = token;
+    
+                    await existedUser.save();
+                    await trasporter.sendMail(registerEmailConfig(email, token));
+                })
+
+                return;
+            }
+            
+            // Session cookie creation process
+            req.session.user       = existedUser;
+            req.session.isLoggedIn = true;
+            
+            req.session.save(err => {
+                if (err) throw err;
+                
+                req.flash('success', 'Logged in!');
+                res.redirect('/');
+            });
         } catch (error) {
             console.error(error);
         }
@@ -193,6 +258,6 @@ router.get('/logout', (req, res) => {
     req.session.destroy(() => {
         res.redirect('/');
     });
-})
+});
 
 module.exports = router;

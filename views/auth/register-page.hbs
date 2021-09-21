@@ -1,7 +1,11 @@
 <div class="body-content">
     <div class="register">
-        {{#if registerError}}
-        <p>{{registerError}}</p>
+        {{#if error}}
+        <p class="alert error">{{error}}</p>
+        {{/if}}
+        
+        {{#if success}}
+        <p class="alert success">{{success}}</p>
         {{/if}}
         <form action="/auth/register" method="POST">
             <label for="email">Email:</label><br>

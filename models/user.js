@@ -29,6 +29,12 @@ const userSchema      = new Schema({
         required: true,
         default: 'regular'
     },
+    registrationToken: String,
+    isActivated: {
+        type: Boolean,
+        required: true,
+        default: false
+    },
     isAdmin: {
         type: Boolean,
         required: true,

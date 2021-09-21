@@ -1,4 +1,12 @@
     <div class="body-content">
+        {{#if error}}
+        <p class="alert error">{{error}}</p>
+        {{/if}}
+        
+        {{#if success}}
+        <p class="alert success">{{success}}</p>
+        {{/if}}
+
         {{#if articles.length}}
         {{#each articles}}
             <div class="article">

@@ -287,6 +287,11 @@ p.comments__no-comments {
     border: 1px solid gray;
 }
 
+.login__password-restore {
+    margin-top: 10px;
+    font-size: 14px;
+}
+
 .register__btn {
     margin-top: 10px;
 }
