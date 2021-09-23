@@ -1,7 +1,7 @@
-const { body } = require('express-validator');
-const User     = require('../models/user');
-const helper   = require('./helper');
-const bcrypt   = require('bcryptjs');
+const { body, param } = require('express-validator');
+const User            = require('../models/user');
+const helper          = require('./helper');
+const bcrypt          = require('bcryptjs');
 
 exports.registerValidator = [
     body('email', `Email must contain numbers, symbols and digits in latin alphabet. Also don't forget to add your domain symbols. For example, email@gmail.com`).isEmail(),
@@ -80,6 +80,65 @@ exports.resetPasswordValidator = [
             console.error(error);
 
             return Promise.reject(`An error occured. User hasn't been found. Seems like you're modifying the HMTL-form. Reload the page and try again.`)
+        }
+    })
+];
+
+exports.userValidatorByEmail = [
+    body('email').custom(async (value, { req }) => {
+        try {
+            if (!value) {
+                return Promise.reject('Please enter your email')
+            }
+
+            const user = await User.findOne({ email: value });
+
+            if (!user) {
+                return Promise.reject(`User doesn't exist`);
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    })
+];
+
+exports.userValidatorByRestoreToken = [
+    param('token').custom(async (value, { req }) => {
+        try {
+            if (!value) {
+                return Promise.reject('There is nothing to see')
+            }
+    
+            const user = await User.findOne({
+                restoreToken: value,
+                restoreTokenExpirationDate: {$gt: Date.now()}
+            });
+    
+            if (!user) {
+                return Promise.reject(`You can't access this link. Seems like your token has expired or already used, try again.`);
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    })
+];
+
+exports.userValidatorByRegisterToken = [
+    param('token').custom(async (value, { req }) => {
+        try {
+            if (!value) {
+                return Promise.reject('There is nothing to see')
+            }
+    
+            const user = await User.findOne({
+                registrationToken: value
+            });
+    
+            if (!user) {
+                return Promise.reject(`You can't access this link. Seems like your token has expired or already used, try again.`);
+            }
+        } catch (error) {
+            console.error(error);
         }
     })
 ];

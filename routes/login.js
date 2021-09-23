@@ -9,19 +9,28 @@ const keys                 = require('../keys');
 const registerEmailConfig  = require('../emails/registration');
 const passResetEmailConfig = require('../emails/password-reset');
 const validators           = require('../utils/validators');
-const { check, oneOf, validationResult } = require('express-validator');
+const { validationResult } = require('express-validator');
 // End of imports
 
+/**
+ * Email sender
+ */
 const trasporter = nodemailer.createTransport(sendgrid({
     auth: { api_key: keys.EMAIL_API_KEY }
 }));
 
+/**
+ * Main auth page
+ */
 router.get('/', (req, res) => {
     res.render('auth/auth', {
         title: 'Log in or create a new account'
     });
 });
 
+/**
+ * User's registration process. Generates access-token and sends it to email
+ */
 router.route('/register')
     .get(async (req, res) => {
         res.render('auth/register-page', {
@@ -72,10 +81,23 @@ router.route('/register')
         }
     });
 
+/**
+ * User's register confirmation
+ */
 router.route('/register/confirm/:token')
-    .get(async (req, res) => {
-        if (!req.params.token) {
-            return res.redirect('/auth/login'); // Redirect doesn't work
+    .get(validators.userValidatorByRegisterToken, async (req, res) => {
+        // if (!req.params.token) {
+        //     return res.redirect('/auth/login'); // Redirect doesn't work
+        // }
+
+        const validationErrors = validationResult(req).errors;
+
+        if (validationErrors.length) {
+            validationErrors.forEach(error => {
+                req.flash('error', error.msg);
+            });
+
+            return res.status(422).redirect('/auth/login');
         }
 
         try {
@@ -84,11 +106,11 @@ router.route('/register/confirm/:token')
                 isActivated: false
             });
 
-            if (!user) {
-                req.flash('error', `You can't access this link. Seems like you're already activated.`);
+            // if (!user) {
+            //     req.flash('error', `You can't access this link. Seems like you're already activated.`);
 
-                return res.redirect('/auth/login');
-            }
+            //     return res.redirect('/auth/login');
+            // }
 
             user.registrationToken = undefined;
             user.isActivated       = true;
@@ -102,6 +124,9 @@ router.route('/register/confirm/:token')
         }
     });
 
+/**
+ * User's authorization
+ */
 router.route('/login')
     .get(async (req, res) => {
         res.render('auth/login-page', {
@@ -139,6 +164,9 @@ router.route('/login')
         }
     });
 
+/**
+ * Starts user's password reset process. Generates restore token and sends it to user's email
+ */
 router.route('/password-reset')
     .get(async (req, res) => {
         res.render('auth/password-reset', {
@@ -146,14 +174,18 @@ router.route('/password-reset')
             error: req.flash('error')
         })
     })
-    .post(async (req, res) => {
+    .post(validators.userValidatorByEmail, async (req, res) => {
         try {
-            const email = req.body.email;
-            const user  = await User.findOne({ email });
+            const email            = req.body.email;
+            const user             = await User.findOne({ email });
+            const validationErrors = validationResult(req).errors;
 
-            if (!user) {
-                req.flash('error', `User doesn't exist`);
-                return res.redirect('password-reset');
+            if (validationErrors.length) {
+                validationErrors.forEach(error => {
+                    req.flash('error', error.msg);
+                });
+
+                return res.status(422).redirect('password-reset');
             }
 
             crypto.randomBytes(32, async (err, buf) => {
@@ -177,10 +209,19 @@ router.route('/password-reset')
         }
     });
 
+/**
+ * Checks if user has access to reset his password
+ */
 router.route('/password-reset/:token')
-    .get(async (req, res) => {
-        if (!req.params.token) {
-            return res.redirect('/auth/login');
+    .get(validators.userValidatorByRestoreToken, async (req, res) => {
+        const validationErrors = validationResult(req).errors;
+
+        if (validationErrors.length) {
+            validationErrors.forEach(error => {
+                req.flash('error', error.msg);
+            });
+
+            return res.status(422).redirect('/auth/login');
         }
 
         try {
@@ -188,11 +229,6 @@ router.route('/password-reset/:token')
                 restoreToken: req.params.token,
                 restoreTokenExpirationDate: {$gt: Date.now()}
             });
-
-            if (!user) {
-                req.flash('error', `You can't access this link. Seems like your token has expired, try again.`);
-                return res.redirect('/auth/login');
-            }
 
             res.render('auth/password-reset-confirm', {
                 title: 'Restore the password',
@@ -205,9 +241,12 @@ router.route('/password-reset/:token')
         }
     });
 
+/**
+ * Handles user's password reset finish process
+ */
 router.post('/password-reset-confirm', validators.resetPasswordValidator, async (req, res) => {
         const validationErrors = validationResult(req).errors;
-        console.log(validationErrors)
+        
         if (validationErrors.length) {
             validationErrors.forEach(error => {
                 req.flash('error', error.msg);
@@ -231,6 +270,9 @@ router.post('/password-reset-confirm', validators.resetPasswordValidator, async 
         res.redirect('login');
     });
 
+/**
+ * Destroys user's session
+ */
 router.get('/logout', (req, res) => {
     req.session.destroy(() => {
         res.redirect('/');
