@@ -1,12 +1,17 @@
 <div class="body-content">
     <div class="register">
-        {{#if error}}
-        <p class="alert error">{{error}}</p>
+        {{#if error.length}}
+        {{#each error}}
+        <p class="alert error">{{this}}</p>
+        {{/each}}
         {{/if}}
-        
-        {{#if success}}
-        <p class="alert success">{{success}}</p>
+
+        {{#if success.length}}
+        {{#each success}}
+        <p class="alert success">{{this}}</p>
+        {{/each}}
         {{/if}}
+
         <form action="/auth/register" method="POST">
             <label for="email">Email:</label><br>
             <input id="email" name='email' class="register__email" maxlength="70" required></input><br>

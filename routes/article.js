@@ -1,10 +1,12 @@
-const {Router}   = require('express');
-const router     = Router();
-const Article    = require('../models/article');
-const fnsDate    = require('date-fns/format')
-const mongoose   = require('mongoose');
-const adminCheck = require('../middlewares/adminCheck.js');
-const User       = require('../models/user');
+const {Router}             = require('express');
+const router               = Router();
+const Article              = require('../models/article');
+const fnsDate              = require('date-fns/format')
+const mongoose             = require('mongoose');
+const adminCheck           = require('../middlewares/adminCheck.js');
+const User                 = require('../models/user');
+const validators           = require('../utils/validators');
+const { validationResult } = require('express-validator');
 
 // View an article and comments to it
 router.get('/view/:id', async (req, res) => {
@@ -15,6 +17,8 @@ router.get('/view/:id', async (req, res) => {
         res.render('article', {
             title: article.title,
             user: req.session.user,
+            error: req.flash('error'),
+            success: req.flash('success'),
             article,
             articleComments
         })
@@ -24,17 +28,26 @@ router.get('/view/:id', async (req, res) => {
 })
 
 // Post a comment
-router.post('/view/:id/post-comment', async (req, res) => {
+router.post('/view/:id/post-comment', validators.commentValidator, async (req, res) => {
     try {
         // Add a comment to an article
-        const commentMongoId = new mongoose.Types.ObjectId()
-        let article          = await Article.findById(req.params.id).lean();
-        let user             = await User.findOne({ email: req.body.email }); // Add an ability to comment without being authorized
-        const commentObject  = {
+        const commentMongoId  = new mongoose.Types.ObjectId()
+        let article           = await Article.findById(req.params.id).lean();
+        let user              = await User.findOne({ email: req.body.email }); // Add an ability to comment without being authorized
+        const commentObject   = {
             "_id": commentMongoId,
             "text": req.body.text,
             "date": fnsDate(new Date(Date.now()), 'PPPppp'),
             "user": user
+        }
+        const validationErrors = validationResult(req).errors;
+        
+        if (validationErrors.length) {
+            validationErrors.forEach(error => {
+                req.flash('error', error.msg);
+            });
+
+            return res.status(422).redirect(`/article/view/${req.params.id}`);
         }
 
         article.comments.push(commentObject);
@@ -50,9 +63,12 @@ router.post('/view/:id/post-comment', async (req, res) => {
         })
 
         user.comments = userComments;
-        user.save();
 
-        res.end('Comment has been successfully added.'); // Replace with a page reload
+        await user.save();
+
+        req.flash('success', 'Your comment has been successfully added!')
+
+        res.redirect(`/article/view/${req.params.id}`);
     } catch (error) {
         console.error(error);
     }

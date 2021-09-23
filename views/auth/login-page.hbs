@@ -1,16 +1,17 @@
 <div class="body-content">
     <div class="login">
-        {{#if error}}
-        <p class="alert error">{{error}}</p>
+        {{#if error.length}}
+        {{#each error}}
+        <p class="alert error">{{this}}</p>
+        {{/each}}
         {{/if}}
 
-        {{#if success}}
-        <p class="alert success">{{success}}</p>
+        {{#if success.length}}
+        {{#each success}}
+        <p class="alert success">{{this}}</p>
+        {{/each}}
         {{/if}}
 
-        {{#if passRestored}}
-        <p class="alert success">{{passRestored}}</p>
-        {{/if}}
         <form action="/auth/login" method="POST">
             <label for="email">Email:</label><br>
             <input id="email" name='email' class="login__email" maxlength="70" required></input><br>

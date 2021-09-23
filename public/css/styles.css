@@ -36,10 +36,6 @@ a {
     color: midnightblue;
 }
 
-p {
-    margin: 0 0 15px;
-}
-
 /*2. Header */
 header {
     border-bottom: 2px solid black;
@@ -301,11 +297,17 @@ p.comments__no-comments {
 }
 
 .alert.success {
-    color: green;
+    margin: 0 0 15px;
+    border: 1px solid #37e437;
+    padding: 5px;
+    background-color: #a8f1a8;
 }
 
 .alert.error {
-    color: red;
+    margin: 0 0 15px;
+    border: 1px solid #f17878;
+    padding: 5px;
+    background-color: #f5a5a5;
 }
 
 /* 9. Adaptive design start */
@@ -321,7 +323,7 @@ p.comments__no-comments {
     }
 
     .header__logo {
-        font-size: 32px;
+        font-size: 28px;
     }
 
     .left-side-block__media-buttons {

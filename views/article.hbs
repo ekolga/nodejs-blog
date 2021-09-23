@@ -1,4 +1,16 @@
 <div class="post">
+    {{#if error.length}}
+    {{#each error}}
+    <p class="alert error">{{this}}</p>
+    {{/each}}
+    {{/if}}
+    
+    {{#if success.length}}
+    {{#each success}}
+    <p class="alert success">{{this}}</p>
+    {{/each}}
+    {{/if}}
+
     <div class="post__title">
         <h1>{{article.title}}</h1>
     </div>
@@ -44,7 +56,7 @@
                         <input name="_csrf" type="hidden" value="{{csrf}}">
                         <br>
                         <label for="text">Your comment:</label>
-                        <textarea id="text" name='text' class="post-new-comment__text" maxlength="1000" required></textarea>
+                        <textarea id="text" name='text' class="post-new-comment__text" minlength="5" maxlength="1000" required></textarea>
                     </div>
 
                     <button class="btn post-new-comment">Post the comment</button>

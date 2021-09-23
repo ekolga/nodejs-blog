@@ -142,3 +142,18 @@ exports.userValidatorByRegisterToken = [
         }
     })
 ];
+
+exports.commentValidator = [
+    body('email').custom(async (value, { req }) => {
+        try {
+            const user = await User.findOne({ email: value });
+            
+            if (!user) {
+                return Promise.reject('There is some problems with your account. Please contact me to fix that issue')
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    }),
+    body('text').isLength({ min: 5, max: 1000 }).withMessage('Your comment must be from 5 to 1000 symbols length'),
+];
