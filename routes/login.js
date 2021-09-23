@@ -8,6 +8,8 @@ const sendgrid             = require('nodemailer-sendgrid-transport');
 const keys                 = require('../keys');
 const registerEmailConfig  = require('../emails/registration');
 const passResetEmailConfig = require('../emails/password-reset');
+const validators           = require('../utils/validators');
+const { check, oneOf, validationResult } = require('express-validator');
 // End of imports
 
 const trasporter = nodemailer.createTransport(sendgrid({
@@ -28,15 +30,17 @@ router.route('/register')
             success: req.flash('success')
         })
     })
-    .post(async (req, res) => { // TODO: add symbols validation
+    .post(validators.registerValidator, async (req, res) => {
         try {
             const { email, password, name } = req.body;
-            const existedUser               = await User.findOne({ email });
+            const validationErrors          = validationResult(req).errors;
 
-            if (existedUser) {
-                req.flash('error', 'User already exists.');
+            if (validationErrors.length) {
+                validationErrors.forEach(error => {
+                    req.flash('error', error.msg);
+                });
 
-                return res.redirect('/auth/register');
+                return res.status(422).redirect('/auth/register');
             }
 
             crypto.randomBytes(32, async (err, buf) => {
@@ -106,46 +110,20 @@ router.route('/login')
             success: req.flash('success')
         })
     })
-    .post(async (req, res) => { // TODO: add symbols validation
+    .post(validators.loginValidator, async (req, res) => {
         try {
-            const { email, password } = req.body;
-            const existedUser         = await User.findOne({ email });
+            const { email }        = req.body;
+            const existedUser      = await User.findOne({ email });
+            const validationErrors = validationResult(req).errors;
 
-            if (!existedUser) {
-                req.flash('error', `User doesn't exist`)
+            if (validationErrors.length) {
+                validationErrors.forEach(error => {
+                    req.flash('error', error.msg);
+                });
 
-                return res.redirect('/auth/login');
+                return res.status(422).redirect('/auth/login');
             }
 
-            const arePasswordsTheSame = await bcrypt.compare(password, existedUser.password);
-
-            if (!arePasswordsTheSame) {
-                req.flash('error', 'Incorrect password')
-
-                return res.redirect('/auth/login');
-            }
-
-            if (!existedUser.isActivated) {
-                req.flash('error', `User isn't activated yet. Please, check your email, we've resent the activation code.`);
-                res.redirect('/auth/login');
-
-                crypto.randomBytes(32, async (err, buf) => {
-                    if (err) {
-                        req.flash('error', 'Something went wrong. Please, try again and contact me to fix that issue.');
-    
-                        return res.redirect('/auth/login');
-                    }
-    
-                    const token                   = buf.toString('hex');
-                    existedUser.registrationToken = token;
-    
-                    await existedUser.save();
-                    await trasporter.sendMail(registerEmailConfig(email, token));
-                })
-
-                return;
-            }
-            
             // Session cookie creation process
             req.session.user       = existedUser;
             req.session.isLoggedIn = true;
@@ -227,23 +205,22 @@ router.route('/password-reset/:token')
         }
     });
 
-router.post('/password-reset-confirm', async (req, res) => {
-        const user = await User.findOne({
+router.post('/password-reset-confirm', validators.resetPasswordValidator, async (req, res) => {
+        const validationErrors = validationResult(req).errors;
+        console.log(validationErrors)
+        if (validationErrors.length) {
+            validationErrors.forEach(error => {
+                req.flash('error', error.msg);
+            });
+            
+            return res.status(422).redirect(`/auth/password-reset/${req.body.token}`);
+        }
+
+        const user                      = await User.findOne({
             _id: req.body.userId,
             restoreToken: req.body.token,
             restoreTokenExpirationDate: {$gt: Date.now()}
         });
-
-        if (!user) {
-            req.flash('error', `An error occured. User hasn't been found. Seems like your token has expired, try again.`);
-            return res.redirect('/auth/login');
-        }
-
-        if ((req.body.password.length < 6)) {
-            req.flash('error', 'The password is too short. Please, create a better password');
-            return res.redirect(`/auth/password-reset/${req.body.token}`);
-        }
-
         user.password                   = await bcrypt.hash(req.body.password, 10);
         user.restoreToken               = undefined;
         user.restoreTokenExpirationDate = undefined;

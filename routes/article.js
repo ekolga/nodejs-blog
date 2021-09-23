@@ -65,7 +65,7 @@ router.route('/add')
         title: `Add a new article`
     })
 })
-.post(adminCheck, (req, res) => {
+.post(adminCheck, async (req, res) => {
     const article = {
         title: req.body.title, 
         text: req.body.text,
@@ -81,9 +81,9 @@ router.route('/add')
     const articleModel = new Article(article);
 
     try {
-        articleModel.save();
-
         res.redirect('/');
+
+        await articleModel.save();
     } catch (error) {
         console.error(error);
     }
