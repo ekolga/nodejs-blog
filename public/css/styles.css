@@ -193,7 +193,7 @@ article {
 .post {
     float: left;
     max-width: 80%;
-    padding: 20px;
+    padding: 20px 10px 20px 10px;
 }
 
 .post__post-date {
@@ -222,14 +222,21 @@ article {
 
 .comment {
     max-width: 80%;
-    padding: 20px;
+    padding: 10px;
     padding-left: 10px;
 }
 
+.comment__date {
+    margin: 10px 0 10px 0;
+    padding-bottom: 10px;
+    border-bottom: 1px solid lightgray;
+}
+
 .comment__text {
-    display: flex;
+    /* display: flex; */
     text-align: left;
     padding: 10px;
+    margin: 10px 0 10px 0;
     border: 1px solid gray;
 }
 
@@ -261,6 +268,10 @@ p.comments__no-comments {
     border-top: 1px solid gray;
     margin-top: 10px;
     padding-top: 20px;
+}
+
+.comments.not-authorized p {
+    margin-bottom: 20px;
 }
 
 .comments__login-btn {
@@ -339,7 +350,7 @@ p.comments__no-comments {
     }
 
     .header__logo {
-        font-size: 22px;
+        font-size: 20px;
 
         margin: 0 auto;
      }
@@ -365,13 +376,58 @@ p.comments__no-comments {
     }
 
     .header__navigation a {
-        margin-right: 7px;
-        margin-left: 7px;
+        margin-right: 2px;
+        margin-left: 2px;
         
         font-family: 'Oxygen', sans-serif;
+        font-size: 20px;
     }
 
     .post {
         max-width: 100%;
     }
+}
+
+/* 10. 404 page */
+
+.page_404__to-the-main {
+    color: blue;
+    text-decoration: underline;
+}
+
+/* 11. 500's page */
+
+.page_500 p {
+    margin: 10px 0 10px 0;
+}
+
+/* 12. Contact me page */
+
+.contact-me p {
+    margin: 10px 0 10px 0;
+}
+
+
+.contact-me__media-buttons {
+    display: flex;
+    justify-content: space-between;
+    padding-right: 10px;
+    padding-left: 10px;
+    padding-top: 10px;
+}
+
+.contact-me__telegram {
+    fill: #60b5ff;
+}
+
+.contact-me__linkedin {
+    fill: #0a66c2
+}
+
+.contact-me__instagram {
+    fill: #e437b0
+}
+
+.contact-me__facebook {
+    fill: #4267B2
 }

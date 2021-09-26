@@ -1,4 +1,4 @@
-const {Router}             = require('express');
+const { Router }           = require('express');
 const router               = Router();
 const Article              = require('../models/article');
 const fnsDate              = require('date-fns/format')
@@ -37,7 +37,7 @@ router.post('/view/:id/post-comment', validators.commentValidator, async (req, r
         const commentObject   = {
             "_id": commentMongoId,
             "text": req.body.text,
-            "date": fnsDate(new Date(Date.now()), 'PPPppp'),
+            "date": fnsDate(new Date(Date.now()), 'PPPp'),
             "user": user
         }
         const validationErrors = validationResult(req).errors;

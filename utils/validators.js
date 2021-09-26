@@ -4,6 +4,7 @@ const helper          = require('./helper');
 const bcrypt          = require('bcryptjs');
 
 exports.registerValidator = [
+    body('email').normalizeEmail(),
     body('email', `Email must contain numbers, symbols and digits in latin alphabet. Also don't forget to add your domain symbols. For example, email@gmail.com`).isEmail(),
     body('email', `Email cannot be less than 3 symbols and more than 70`).isLength({ max: 70, min: 3 }),
     body('email').custom(async (value, { req }) => {
@@ -25,6 +26,7 @@ exports.registerValidator = [
 ];
 
 exports.loginValidator = [
+    body('email').normalizeEmail(),
     body('email', `Email must contain numbers, symbols and digits in latin alphabet. Also don't forget to add your domain symbols. For example, email@gmail.com`).isEmail(),
     body('email', `Email cannot be less than 3 symbols and more than 70`).isLength({ max: 70, min: 3 }),
     body('email').custom(async (value, { req }) => {
@@ -49,7 +51,12 @@ exports.loginValidator = [
     body('password', `Password must be less than 70 symbols`).isLength({ max: 70}),
     body('password').custom(async (value, { req }) => {
         try {
-            const existedUser         = await User.findOne({ email: req.body.email });
+            const existedUser = await User.findOne({ email: req.body.email });
+
+            if (!existedUser) {
+                return;
+            }
+
             const arePasswordsTheSame = await bcrypt.compare(value, existedUser.password);
     
             if (!arePasswordsTheSame) {
@@ -85,6 +92,7 @@ exports.resetPasswordValidator = [
 ];
 
 exports.userValidatorByEmail = [
+    body('email').normalizeEmail(),
     body('email').custom(async (value, { req }) => {
         try {
             if (!value) {
@@ -144,6 +152,7 @@ exports.userValidatorByRegisterToken = [
 ];
 
 exports.commentValidator = [
+    body('email').normalizeEmail(),
     body('email').custom(async (value, { req }) => {
         try {
             const user = await User.findOne({ email: value });
@@ -155,5 +164,5 @@ exports.commentValidator = [
             console.error(error);
         }
     }),
-    body('text').isLength({ min: 5, max: 1000 }).withMessage('Your comment must be from 5 to 1000 symbols length'),
+    body('text').isLength({ min: 5, max: 1000 }).withMessage('Your comment must be from 5 to 1000 symbols length').trim().escape(),
 ];

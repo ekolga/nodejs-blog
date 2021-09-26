@@ -2,7 +2,10 @@ const homeRoutes    = require('./routes/home');
 const articleRoutes = require('./routes/article');
 const topicsRoutes  = require('./routes/topics');
 const loginRoutes   = require('./routes/login');
+const contactRoutes = require('./routes/contact');
 const path          = require('path');
+const helmet        = require('helmet');
+const compression   = require('compression');
 const express       = require('express');
 const app           = express();
 const flash         = require('connect-flash');
@@ -11,7 +14,6 @@ const csrf          = require('csurf');
 const MongoStore    = require('connect-mongodb-session')(session);
 const exphbs        = require('express-handlebars');
 const mongoose      = require('mongoose');
-const User          = require('./models/user');
 const hbs           = exphbs.create({
     defaultLayout: 'main',
     extname: 'hbs'
@@ -46,6 +48,12 @@ app.use(csrf());
 // Middleware for transportation errors to views
 app.use(flash());
 
+// A bunch of middlewares to secure this app
+app.use(helmet());
+
+// Adds a compression feature in order to speed the site in the future
+app.use(compression());
+
  // Authorization check
 app.use(varMiddleware);
 
@@ -54,12 +62,17 @@ app.use('/', homeRoutes);
 app.use('/article', articleRoutes);
 app.use('/topics', topicsRoutes);
 app.use('/auth', loginRoutes);
+app.use('/contact-me', contactRoutes);
 app.use((req, res) => {
-    res.status(404).send('There is nothing to see.');
+    res.status(404).render('errors/404', {
+        title: "Nothing to see here"
+    });
 })
 app.use((err, req, res, next) => {
     console.error(err);
-    res.status(500).send(`It's a 500... I'm sorry, but something is probably broken right now.`);
+    res.status(500).render('errors/500', {
+        title: "Oops! Something went wrong..."
+    });
 })
 
 // Starting the server and connecting to the database
@@ -67,7 +80,7 @@ async function start() {
     try {
         await mongoose.connect(keys.MONGODB_URI, {useNewUrlParser: true});
 
-        app.listen(8000, () => console.log('Server is running...'));
+        app.listen(8000, () => console.log('Server is online'));
     } catch (e) {
         console.error(e);
     }
