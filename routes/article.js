@@ -7,6 +7,11 @@ const adminCheck           = require('../middlewares/adminCheck.js');
 const User                 = require('../models/user');
 const validators           = require('../utils/validators');
 const { validationResult } = require('express-validator');
+//
+
+const LIKE = 1;
+
+const DISLIKE = 0;
 
 // View an article and comments to it
 router.get('/view/:id', async (req, res) => {
@@ -25,7 +30,104 @@ router.get('/view/:id', async (req, res) => {
     } catch (error) {
         console.error(error);
     }
-})
+});
+
+router.route('/view/:id/rating')
+    .get(async (req, res) => {
+        try {
+            const article  = await Article.findById(req.params.id).lean();
+            const likes    = article.likes.length;
+            const dislikes = article.dislikes.length;
+
+            res.end(JSON.stringify({
+                likes,
+                dislikes
+            }))
+        } catch (error) {
+            console.error(error);
+        }
+    })
+    .post(async (req, res) => { // Check if user has already rated this article
+        try {
+            let article         = await Article.findById(req.params.id).lean();
+            let user            = await User.findOne({ email: req.body.email })
+            const rate          = +req.body.rate;
+            const toSet         = +req.body.toSet;
+            const ratingMongoId = new mongoose.Types.ObjectId()
+
+            if (rate === undefined) {
+                return res.end(JSON.stringify({
+                    status: 'error',
+                    error: 'Rate parameter is required'
+                }));
+            }
+            console.log(rate)
+            
+            if (rate !== LIKE && rate !== DISLIKE) {
+                return res.end(JSON.stringify({
+                    status: 'error',
+                    error: `Rate parameter is need to be ${LIKE} or ${DISLIKE}`
+                }));
+            }
+
+            if (toSet) {
+                if (rate === LIKE) {
+                    // Saving a record to an article model
+
+                    const ratingObj = {
+                        "_id": ratingMongoId,
+                        user
+                    }
+
+                    article.likes.push(ratingObj);
+
+                    await Article.findByIdAndUpdate(req.params.id, article);
+
+                    // Saving a record to a user model
+
+                    let userLikes = [...user.likes];
+
+                    userLikes.push({ "_id": req.params.id })
+
+                    user.likes = userLikes;
+
+                    await user.save();
+                } else if (rate === DISLIKE) {
+                    // Saving a record to an article model
+
+                    const ratingObj = {
+                        "_id": ratingMongoId,
+                        user
+                    }
+
+                    article.dislikes.push(ratingObj);
+
+                    await Article.findByIdAndUpdate(req.params.id, article);
+
+                    // Saving a record to a user model
+
+                    let userDislikes = [...user.dislikes];
+
+                    userDislikes.push({ "_id": req.params.id })
+
+                    user.dislikes = userDislikes;
+
+                    await user.save();
+                }
+
+                article = await Article.findById(req.params.id);
+
+                return res.end(JSON.stringify({
+                    status: "ok",
+                    likes: article.likes.length,
+                    dislikes: article.dislikes.length
+                }))
+            }
+
+        } catch (error) {
+            console.error(error);
+        }
+    });
 
 // Post a comment
 router.post('/view/:id/post-comment', validators.commentValidator, async (req, res) => {

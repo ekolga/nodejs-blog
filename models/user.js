@@ -22,6 +22,14 @@ const userSchema      = new Schema({
             ref: 'Article'
         }
     }],
+    likes: [{
+        type: Schema.Types.ObjectId,
+        ref: 'Article'
+    }],
+    dislikes: [{
+        type: Schema.Types.ObjectId,
+        ref: 'Article'
+    }],
     restoreToken: String,
     restoreTokenExpirationDate: Date,
     role: {
