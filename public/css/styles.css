@@ -212,6 +212,18 @@ article {
     border: 1px solid gray;
 }
 
+.post__full__buttons {
+    margin: 10px;
+
+    display: flex;
+    text-decoration: none;
+    justify-content: right;
+}
+
+.post__full__buttons > a{
+    margin: 0 10px 0 10px;
+}
+
 /* 7. Comments section */
 
 .comments__section-title {
