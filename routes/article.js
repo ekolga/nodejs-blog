@@ -143,7 +143,7 @@ router.post('/delete/:id', adminCheck, async (req, res) => {
 
 // Helper functions
 let shortenTheText = function(text) {
-    const limit   = 999;
+    const limit   = 700;
     const endChar = '…'
 
     return text.slice(0, limit) + endChar;
