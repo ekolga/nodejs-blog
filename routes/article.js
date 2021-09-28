@@ -49,10 +49,10 @@ router.route('/view/:id/rating')
     })
     .post(async (req, res) => { // Check if user has already rated this article
         try {
-            let article         = await Article.findById(req.params.id).lean();
+            let article         = await Article.findById(req.params.id);
             let user            = await User.findOne({ email: req.body.email })
-            const rate          = +req.body.rate;
-            const toSet         = +req.body.toSet;
+            const rate          = +req.body.rate; // 1 means like, 0 - dislike
+            const toSet         = +req.body.toSet; // 1 means to set, 0 - to unset
             const ratingMongoId = new mongoose.Types.ObjectId()
 
             if (rate === undefined) {
@@ -61,61 +61,45 @@ router.route('/view/:id/rating')
                     error: 'Rate parameter is required'
                 }));
             }
-            console.log(rate)
-            
-            if (rate !== LIKE && rate !== DISLIKE) {
+
+            if ([LIKE, DISLIKE].indexOf(rate) == -1) {
                 return res.end(JSON.stringify({
                     status: 'error',
                     error: `Rate parameter is need to be ${LIKE} or ${DISLIKE}`
                 }));
             }
-
+            
             if (toSet) {
-                if (rate === LIKE) {
-                    // Saving a record to an article model
-
-                    const ratingObj = {
-                        "_id": ratingMongoId,
-                        user
-                    }
-
-                    article.likes.push(ratingObj);
-
-                    await Article.findByIdAndUpdate(req.params.id, article);
-
-                    // Saving a record to a user model
-
-                    let userLikes = [...user.likes];
-
-                    userLikes.push({ "_id": req.params.id })
-
-                    user.likes = userLikes;
-
-                    await user.save();
-                } else if (rate === DISLIKE) {
-                    // Saving a record to an article model
-
-                    const ratingObj = {
-                        "_id": ratingMongoId,
-                        user
-                    }
-
-                    article.dislikes.push(ratingObj);
-
-                    await Article.findByIdAndUpdate(req.params.id, article);
-
-                    // Saving a record to a user model
-
-                    let userDislikes = [...user.dislikes];
-
-                    userDislikes.push({ "_id": req.params.id })
-
-                    user.dislikes = userDislikes;
-
-                    await user.save();
+                if (User.findOne({ email: req.body.email, 'likes': new mongoose.Types.ObjectId(req.params.id) })) {
+                    console.log('TRUE mazafaka')
                 }
 
-                article = await Article.findById(req.params.id);
+                // Saving a record to an article model
+
+                const ratingObj  = {
+                    "_id": ratingMongoId,
+                    user
+                };
+                const rateWord   = rate ? 'likes' : 'dislikes';
+                let articleRates = [...article[rateWord]];
+                
+                articleRates.push(ratingObj);
+
+                article[rateWord] = articleRates;
+
+                await article.save();
+
+                // Saving a record to a user model
+
+                let userRates = [...user[rateWord]];
+
+                userRates.push({ "_id": req.params.id })
+
+                user[rateWord] = userRates;
+
+                user.save();
+               
+                article = await Article.findById(req.params.id).lean();
 
                 return res.end(JSON.stringify({
                     status: "ok",
