@@ -23,12 +23,16 @@ const userSchema      = new Schema({
         }
     }],
     likes: [{
-        type: Schema.Types.ObjectId,
-        ref: 'Article'
+        article: {
+            type: Schema.Types.ObjectId,
+            ref: 'Article'
+        }
     }],
     dislikes: [{
-        type: Schema.Types.ObjectId,
-        ref: 'Article'
+        article: {
+            type: Schema.Types.ObjectId,
+            ref: 'Article'
+        }
     }],
     restoreToken: String,
     restoreTokenExpirationDate: Date,

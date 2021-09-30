@@ -7,13 +7,11 @@ const adminCheck           = require('../middlewares/adminCheck.js');
 const User                 = require('../models/user');
 const validators           = require('../utils/validators');
 const { validationResult } = require('express-validator');
-//
+// End of imports
 
-const LIKE = 1;
-
-const DISLIKE = 0;
-
-// View an article and comments to it
+/**
+ * Shows an article and all comments to it
+ */
 router.get('/view/:id', async (req, res) => {
     try {
         const article         = await Article.findById(req.params.id).populate('comments.user', 'email name').lean();
@@ -32,6 +30,106 @@ router.get('/view/:id', async (req, res) => {
     }
 });
 
+/**
+ * Sets like to an article and to a user objects
+ */
+router.post('/view/:id/rating/setLike', async (req, res) => {
+    const user = req.body.email ? await User.findOne({ email: req.body.email }) : undefined;
+    
+    if (user === undefined) {
+        return res.end(JSON.stringify({
+            status: 'error',
+            error: 'User have to be authorized'
+        }));
+    }
+
+    // End the response if user has already liked this post
+    const checkArticle = await Article.findOne({ '_id': req.params.id, 'likes.user': new mongoose.Types.ObjectId(user._id) });
+
+    if (checkArticle) {
+        return res.end(JSON.stringify({
+            status: 'ok',
+            message: 'You have already liked this post',
+            likes: checkArticle.likes.length,
+            dislikes: checkArticle.dislikes.length
+        }));
+    }
+
+    const article = await Article.findById(req.params.id);
+
+    // Saving a record to an article model
+
+    let articleLikes = [...article.likes];
+
+    articleLikes.push({ user });
+
+    article.likes = articleLikes;
+
+    article.save().then(updatedArticle => {
+        return res.end(JSON.stringify({
+            status: "ok",
+            likes: updatedArticle.likes.length,
+            dislikes: updatedArticle.dislikes.length
+        }))
+    });
+
+    // Saving a record to a user model
+
+    let userLikes = [...user.likes];
+
+    userLikes.push({ article })
+
+    user.likes = userLikes;
+
+    await user.save();
+});
+
+/**
+ * Removes like from an article and from a user objects
+ */
+router.post('/view/:id/rating/unsetLike', async (req, res) => {
+    const user = req.body.email ? await User.findOne({ email: req.body.email }) : undefined;
+    
+    if (user === undefined) {
+        return res.end(JSON.stringify({
+            status: 'error',
+            error: 'User have to be authorized'
+        }));
+    }
+
+    const userId  = new mongoose.Types.ObjectId(user._id);
+    const article = await Article.findOne({ '_id': req.params.id, 'likes.user': userId });
+
+    if (!article) {
+        return res.end(JSON.stringify({
+            status: 'error',
+            error: 'You have not rated this article yet'
+        }))
+    }
+
+    // Deleting a like from an article object
+
+    const newArticleLikesObj = article.likes.filter(likeObj => likeObj.user.toString() != userId);
+    article.likes            = newArticleLikesObj;
+    
+    article.save().then(updatedArticle => {
+        return res.end(JSON.stringify({
+            status: "ok",
+            likes: updatedArticle.likes.length,
+            dislikes: updatedArticle.dislikes.length
+        }))
+    })
+
+    // Deleting a like from a user object
+    const newUserLikesObj = user.likes.filter(likeObj => likeObj.article.toString() != new mongoose.Types.ObjectId(article._id));
+    user.likes            = newUserLikesObj;
+
+    await user.save();
+});
+
+/**
+ * Returns number of rates to the specified article
+ */
 router.route('/view/:id/rating')
     .get(async (req, res) => {
         try {
@@ -46,74 +144,11 @@ router.route('/view/:id/rating')
         } catch (error) {
             console.error(error);
         }
-    })
-    .post(async (req, res) => { // Check if user has already rated this article
-        try {
-            let article         = await Article.findById(req.params.id);
-            let user            = await User.findOne({ email: req.body.email })
-            const rate          = +req.body.rate; // 1 means like, 0 - dislike
-            const toSet         = +req.body.toSet; // 1 means to set, 0 - to unset
-            const ratingMongoId = new mongoose.Types.ObjectId()
-
-            if (rate === undefined) {
-                return res.end(JSON.stringify({
-                    status: 'error',
-                    error: 'Rate parameter is required'
-                }));
-            }
-
-            if ([LIKE, DISLIKE].indexOf(rate) == -1) {
-                return res.end(JSON.stringify({
-                    status: 'error',
-                    error: `Rate parameter is need to be ${LIKE} or ${DISLIKE}`
-                }));
-            }
-            
-            if (toSet) {
-                if (User.findOne({ email: req.body.email, 'likes': new mongoose.Types.ObjectId(req.params.id) })) {
-                    console.log('TRUE mazafaka')
-                }
-
-                // Saving a record to an article model
-
-                const ratingObj  = {
-                    "_id": ratingMongoId,
-                    user
-                };
-                const rateWord   = rate ? 'likes' : 'dislikes';
-                let articleRates = [...article[rateWord]];
-                
-                articleRates.push(ratingObj);
-
-                article[rateWord] = articleRates;
-
-                await article.save();
-
-                // Saving a record to a user model
-
-                let userRates = [...user[rateWord]];
-
-                userRates.push({ "_id": req.params.id })
-
-                user[rateWord] = userRates;
-
-                user.save();
-               
-                article = await Article.findById(req.params.id).lean();
-
-                return res.end(JSON.stringify({
-                    status: "ok",
-                    likes: article.likes.length,
-                    dislikes: article.dislikes.length
-                }))
-            }
-
-        } catch (error) {
-            console.error(error);
-        }
     });
 
-// Post a comment
+/**
+ * Writes a comment to an article and a user objects
+ */
 router.post('/view/:id/post-comment', validators.commentValidator, async (req, res) => {
     try {
         // Add a comment to an article

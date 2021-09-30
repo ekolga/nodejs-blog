@@ -149,26 +149,29 @@ article {
     position: relative;
 }
 
+.article__additional-info {
+    margin: 10px 0 10px 0;
+}
+
 .article__post-date {
     font-size: 15px;
-    margin-top: 10px;
-    margin-bottom: 10px;
+    float: left;
 }
 
 .article__preview {
-    margin-bottom: 30px;
+    margin-bottom: 20px;
 }
 
-.article__like-button, .article__comment-button, .article__more-button {
-    margin-left: 10px;
-    margin-right: 10px;
+.article__like-button, .article__comment-button, .article__dislike-button {
+    margin-left: 5px;
+    margin-right: 5px;
 
     text-decoration: none;
 }
 
-.article__more-button {
-    position: absolute;
-    right: 0;
+.article__rates, .article__more-button {
+    display: flex;
+    justify-content: flex-end;
 }
 
 /* 5. Footer*/
