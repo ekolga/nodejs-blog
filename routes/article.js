@@ -1,12 +1,13 @@
-const { Router }           = require('express');
-const router               = Router();
-const Article              = require('../models/article');
-const fnsDate              = require('date-fns/format')
-const mongoose             = require('mongoose');
-const adminCheck           = require('../middlewares/adminCheck.js');
-const User                 = require('../models/user');
-const validators           = require('../utils/validators');
-const { validationResult } = require('express-validator');
+const { Router }             = require('express');
+const router                 = Router();
+const Article                = require('../models/article');
+const fnsDate                = require('date-fns/format')
+const mongoose               = require('mongoose');
+const adminCheck             = require('../middlewares/adminCheck.js');
+const User                   = require('../models/user');
+const validators             = require('../utils/validators');
+const { validationResult }   = require('express-validator');
+const { setRate, unsetRate } = require('../utils/helper');
 // End of imports
 
 /**
@@ -33,98 +34,29 @@ router.get('/view/:id', async (req, res) => {
 /**
  * Sets like to an article and to a user objects
  */
-router.post('/view/:id/rating/setLike', async (req, res) => {
-    const user = req.body.email ? await User.findOne({ email: req.body.email }) : undefined;
-    
-    if (user === undefined) {
-        return res.end(JSON.stringify({
-            status: 'error',
-            error: 'User have to be authorized'
-        }));
-    }
+ router.post('/view/:id/rating/setLike', async (req, res) => {
+    setRate(req, res, 'like');
+});
 
-    // End the response if user has already liked this post
-    const checkArticle = await Article.findOne({ '_id': req.params.id, 'likes.user': new mongoose.Types.ObjectId(user._id) });
-
-    if (checkArticle) {
-        return res.end(JSON.stringify({
-            status: 'ok',
-            message: 'You have already liked this post',
-            likes: checkArticle.likes.length,
-            dislikes: checkArticle.dislikes.length
-        }));
-    }
-
-    const article = await Article.findById(req.params.id);
-
-    // Saving a record to an article model
-
-    let articleLikes = [...article.likes];
-
-    articleLikes.push({ user });
-
-    article.likes = articleLikes;
-
-    article.save().then(updatedArticle => {
-        return res.end(JSON.stringify({
-            status: "ok",
-            likes: updatedArticle.likes.length,
-            dislikes: updatedArticle.dislikes.length
-        }))
-    });
-
-    // Saving a record to a user model
-
-    let userLikes = [...user.likes];
-
-    userLikes.push({ article })
-
-    user.likes = userLikes;
-
-    await user.save();
+/**
+ * Sets dislike to an article and to a user objects
+ */
+router.post('/view/:id/rating/setDislike', async (req, res) => {
+    setRate(req, res, 'dislike');
 });
 
 /**
  * Removes like from an article and from a user objects
  */
 router.post('/view/:id/rating/unsetLike', async (req, res) => {
-    const user = req.body.email ? await User.findOne({ email: req.body.email }) : undefined;
-    
-    if (user === undefined) {
-        return res.end(JSON.stringify({
-            status: 'error',
-            error: 'User have to be authorized'
-        }));
-    }
+    unsetRate(req, res, 'like')
+});
 
-    const userId  = new mongoose.Types.ObjectId(user._id);
-    const article = await Article.findOne({ '_id': req.params.id, 'likes.user': userId });
-
-    if (!article) {
-        return res.end(JSON.stringify({
-            status: 'error',
-            error: 'You have not rated this article yet'
-        }))
-    }
-
-    // Deleting a like from an article object
-
-    const newArticleLikesObj = article.likes.filter(likeObj => likeObj.user.toString() != userId);
-    article.likes            = newArticleLikesObj;
-    
-    article.save().then(updatedArticle => {
-        return res.end(JSON.stringify({
-            status: "ok",
-            likes: updatedArticle.likes.length,
-            dislikes: updatedArticle.dislikes.length
-        }))
-    })
-
-    // Deleting a like from a user object
-    const newUserLikesObj = user.likes.filter(likeObj => likeObj.article.toString() != new mongoose.Types.ObjectId(article._id));
-    user.likes            = newUserLikesObj;
-
-    await user.save();
+/**
+ * Removes dislike from an article and from a user objects
+ */
+ router.post('/view/:id/rating/unsetDislike', async (req, res) => {
+    unsetRate(req, res, 'dislike')
 });
 
 /**
