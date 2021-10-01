@@ -43,9 +43,11 @@ module.exports.sendMailWithNewRegistrationToken = function (user) {
  * @returns 
  */
 module.exports.setRate = async function (req, res, rate) {
-    const user = req.body.email ? await User.findOne({ email: req.body.email }) : undefined;
+    console.log(req.body)
+    const user = req.body.email ? await User.findOne({ email: req.body.email }) : null;
+    console.log(user)
     
-    if (user === undefined) {
+    if (user === null) {
         return res.end(JSON.stringify({
             status: 'error',
             error: 'User have to be authorized'
