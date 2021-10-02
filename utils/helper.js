@@ -42,15 +42,15 @@ module.exports.sendMailWithNewRegistrationToken = function (user) {
  * @param {*} rate 
  * @returns 
  */
-module.exports.setRate = async function (req, res, rate) {
-    console.log(req.body)
+module.exports.setRate = async function (req, res, rate) { // Fix a bug when user can set both of like and dislike
+    // console.log(req.body)
     const user = req.body.email ? await User.findOne({ email: req.body.email }) : null;
-    console.log(user)
+    // console.log(user)
     
     if (user === null) {
         return res.end(JSON.stringify({
             status: 'error',
-            error: 'User have to be authorized'
+            error: 'You have to be authorized'
         }));
     }
 
@@ -113,7 +113,7 @@ module.exports.unsetRate = async function (req, res, rate) {
     if (user === undefined) {
         return res.end(JSON.stringify({
             status: 'error',
-            error: 'User have to be authorized'
+            error: 'You have to be authorized'
         }));
     }
 
@@ -150,4 +150,34 @@ module.exports.unsetRate = async function (req, res, rate) {
     user[rateProperty]    = newUserRatesObj;
 
     await user.save();
-}
+};
+
+module.exports.checkIfUserRatedAnArticle = function (user, article) {
+    let userRates    = {
+        isLikedByUser: false,
+        isDislikedByUser: false,
+    }
+
+    if (!user) {
+        // Returns false if user is unauthorized
+        return userRates;
+    }
+
+    let articleLikes = [...article.likes];
+
+    articleLikes.forEach(array => {
+        if (array.user.toString() === user._id.toString()) {
+            userRates.isLikedByUser = true;
+        }
+    })
+
+    let articleDislikes = [...article.dislikes];
+
+    articleDislikes.forEach(array => {
+        if (array.user.toString() === user._id.toString()) {
+            userRates.isDislikedByUser = true;
+        }
+    })
+
+    return userRates;
+};

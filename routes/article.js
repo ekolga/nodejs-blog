@@ -7,7 +7,7 @@ const adminCheck             = require('../middlewares/adminCheck.js');
 const User                   = require('../models/user');
 const validators             = require('../utils/validators');
 const { validationResult }   = require('express-validator');
-const { setRate, unsetRate } = require('../utils/helper');
+const { setRate, unsetRate, checkIfUserRatedAnArticle } = require('../utils/helper');
 // End of imports
 
 /**
@@ -15,16 +15,21 @@ const { setRate, unsetRate } = require('../utils/helper');
  */
 router.get('/view/:id', async (req, res) => {
     try {
-        const article         = await Article.findById(req.params.id).populate('comments.user', 'email name').lean();
-        const articleComments = article.comments;
-    
+        const article = await Article.findById(req.params.id).populate('comments.user', 'email name').lean();
+        let userRates = checkIfUserRatedAnArticle(req.session.user, article);
+
+
         res.render('article', {
             title: article.title,
             user: req.session.user,
             error: req.flash('error'),
             success: req.flash('success'),
             article,
-            articleComments
+            articleComments: article.comments,
+            likes: article.likes.length,
+            dislikes: article.dislikes.length,
+            isLikedByUser: userRates.isLikedByUser,
+            isDislikedByUser: userRates.isDislikedByUser
         })
     } catch (error) {
         console.error(error);
