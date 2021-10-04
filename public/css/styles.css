@@ -231,8 +231,14 @@ article {
     pointer-events: none;
 }
 
-svg.like-button__filled {
-    fill: #E91010;
+img.like-button__filled, img.dislike-button__filled {
+    width: 20px;
+    height: 20px;
+}
+
+img.like-button, img.dislike-button {
+    width: 20px;
+    height: 20px;
 }
 
 /* 7. Comments section */
