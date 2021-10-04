@@ -227,6 +227,14 @@ article {
     margin: 0 10px 0 10px;
 }
 
+.post__full__buttons > a.disabled{
+    pointer-events: none;
+}
+
+svg.like-button__filled {
+    fill: #E91010;
+}
+
 /* 7. Comments section */
 
 .comments__section-title {

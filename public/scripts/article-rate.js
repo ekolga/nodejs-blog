@@ -1,7 +1,9 @@
-const likeButton    = document.querySelector('.post__full__like-button');
-const dislikeButton = document.querySelector('.post__full__dislike-button');
-const articleId     = window.location.pathname.split('/')[3];
-const user          = {
+const likeButton         = document.querySelector('.post__full__like-button');
+const dislikeButton      = document.querySelector('.post__full__dislike-button');
+const likeButtonClass    = likeButton.className;
+const dislikeButtonClass = dislikeButton.className;
+const articleId          = window.location.pathname.split('/')[3];
+const user               = {
     email: document.querySelector('input#email').value
 }
 let requestObj      = {
@@ -66,11 +68,29 @@ function updateClickEventListener(element, oldListenerMethod, newListenerMethod)
 }
 
 /**
- * Sends the request for the like setting
+ * Disables button click events by adding them "pointer-events: none;" style
  */
-async function sendSetLike() {
-    let response = await fetch(`/article/view/${articleId}/rating/setLike`, requestObj);
-    let body     = await response.json();
+function disableButtonClickEvents() {
+    likeButton.className += ' disabled'
+    dislikeButton.className += ' disabled'
+}
+
+/**
+ * Returns button classes to the initial state
+ */
+function enableButtonEvents() {
+    likeButton.className    = likeButtonClass;
+    dislikeButton.className = dislikeButtonClass;
+}
+
+/**
+ * Parses the response and updates the rate counters
+ * 
+ * @param {*} response 
+ * @returns 
+ */
+async function parseResults(response) {
+    let body = await response.json();
 
     if (body.status === 'error') {
         return createAlertElement(false, body.error);
@@ -78,53 +98,68 @@ async function sendSetLike() {
 
     updateRateCounter('like', body.likes);
     updateRateCounter('dislike', body.dislikes);
+}
+
+/**
+ * Sends the request for the like setting
+ */
+async function sendSetLike() {
+    disableButtonClickEvents();
+
+    let response = await fetch(`/article/view/${articleId}/rating/setLike`, requestObj);
+
+    await parseResults(response);
+
     updateClickEventListener(likeButton, sendSetLike, sendUnsetLike);
     updateClickEventListener(dislikeButton, sendUnsetDislike, sendSetDislike);
+
+    enableButtonEvents();
 }
 
 /**
  * Sends the request for the dislike setting
- * 
- * @returns 
  */
 async function sendSetDislike() {
+    disableButtonClickEvents();
+
     let response = await fetch(`/article/view/${articleId}/rating/setDislike`, requestObj);
-    let body     = await response.json();
 
-    if (body.status === 'error') {
-        return createAlertElement(false, body.error);
-    }
+    await parseResults(response);
 
-    updateRateCounter('like', body.likes);
-    updateRateCounter('dislike', body.dislikes);
     updateClickEventListener(dislikeButton, sendSetDislike, sendUnsetDislike);
     updateClickEventListener(likeButton, sendUnsetLike, sendSetLike);
+
+    enableButtonEvents();
 }
 
+/**
+ * Sends the request for the like unset
+ */
 async function sendUnsetLike() {
+    disableButtonClickEvents();
+
     let response = await fetch(`/article/view/${articleId}/rating/unsetLike`, requestObj);
-    let body     = await response.json();
+        
+    await parseResults(response);
 
-    if (body.status === 'error') {
-        return createAlertElement(false, body.error);
-    }
-
-    updateRateCounter('like', body.likes);
-    updateRateCounter('dislike', body.dislikes);
     updateClickEventListener(likeButton, sendUnsetLike, sendSetLike);
+
+    enableButtonEvents();
 }
 
+/**
+ * Sends the request for the dislike unset
+ */
 async function sendUnsetDislike() {
+    disableButtonClickEvents();
+
     let response = await fetch(`/article/view/${articleId}/rating/unsetDislike`, requestObj);
-    let body     = await response.json();
+        
+    await parseResults(response);
 
-    if (body.status === 'error') {
-        return createAlertElement(false, body.error);
-    }
-
-    updateRateCounter('like', body.likes);
-    updateRateCounter('dislike', body.dislikes);
     updateClickEventListener(dislikeButton, sendUnsetDislike, sendSetDislike);
+
+    enableButtonEvents();
 }
 
 /**
