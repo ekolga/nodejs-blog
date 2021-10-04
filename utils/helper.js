@@ -43,9 +43,7 @@ module.exports.sendMailWithNewRegistrationToken = function (user) {
  * @returns 
  */
 module.exports.setRate = async function (req, res, rate) { // Fix a bug when user can set both of like and dislike
-    // console.log(req.body)
     const user = req.body.email ? await User.findOne({ email: req.body.email }) : null;
-    // console.log(user)
     
     if (user === null) {
         return res.end(JSON.stringify({
@@ -55,11 +53,12 @@ module.exports.setRate = async function (req, res, rate) { // Fix a bug when use
     }
 
     // End the response if user has already liked or disliked this post
+    const userId                  = new mongoose.Types.ObjectId(user._id);
     const rateProperty            = (rate === 'like') ? 'likes' : 'dislikes';
-    let query                     = {}
-    query['_id']                  = req.params.id
-    query[`${rateProperty}.user`] = new mongoose.Types.ObjectId(user._id)
-    const checkArticle            = await Article.findOne(query);
+    let query                     = {};
+    query['_id']                  = req.params.id;
+    query[`${rateProperty}.user`] = userId;
+    let checkArticle              = await Article.findOne(query);
 
     if (checkArticle) {
         return res.end(JSON.stringify({
@@ -72,7 +71,14 @@ module.exports.setRate = async function (req, res, rate) { // Fix a bug when use
 
     const article = await Article.findById(req.params.id);
 
-    // Saving a record to an article model
+    // Check if a user set the opposite rate to an article and remove it from the objects
+
+    const oppositeRate = (rateProperty === 'likes') ? 'dislikes' : 'likes';
+    
+    await deleteRateFromArticleObject(article, userId, oppositeRate);
+    await deleteRateFromUserObject(user, article._id, oppositeRate);
+
+    // Saving a new record to an article model
 
     let articleRates = [...article[rateProperty]];
 
@@ -80,7 +86,7 @@ module.exports.setRate = async function (req, res, rate) { // Fix a bug when use
 
     article[rateProperty] = articleRates;
 
-    article.save().then(updatedArticle => {
+    article.save().catch(err => console.error(err)).then(updatedArticle => {
         return res.end(JSON.stringify({
             status: "ok",
             likes: updatedArticle.likes.length,
@@ -96,7 +102,11 @@ module.exports.setRate = async function (req, res, rate) { // Fix a bug when use
 
     user[rateProperty] = userRates;
 
-    await user.save();
+    try {
+        await user.save();
+    } catch (error) {
+        console.error(error)
+    }
 };
 
 /**
@@ -117,7 +127,7 @@ module.exports.unsetRate = async function (req, res, rate) {
         }));
     }
 
-    // End the response if user has already liked or disliked this post
+    // End the response if user hasn't liked or disliked this post yet
     const userId                  = new mongoose.Types.ObjectId(user._id);
     const rateProperty            = (rate === 'like') ? 'likes' : 'dislikes';
     let query                     = {}
@@ -132,26 +142,56 @@ module.exports.unsetRate = async function (req, res, rate) {
         }))
     }
 
-    // Deleting a like from an article object
-
-    const newArticleRatesObj = article[rateProperty].filter(rateObj => rateObj.user.toString() != userId);
-    article[rateProperty]    = newArticleRatesObj;
-    
-    article.save().then(updatedArticle => {
+    deleteRateFromArticleObject(article, userId, rateProperty).catch(err => console.error(err)).then(updatedArticle => {
         return res.end(JSON.stringify({
             status: "ok",
             likes: updatedArticle.likes.length,
             dislikes: updatedArticle.dislikes.length
-        }))
-    })
-
-    // Deleting a like from a user object
-    const newUserRatesObj = user[rateProperty].filter(rateObj => rateObj.article.toString() != new mongoose.Types.ObjectId(article._id));
-    user[rateProperty]    = newUserRatesObj;
-
-    await user.save();
+        }));
+    });
+    deleteRateFromUserObject(user, article._id, rateProperty);
 };
 
+/**
+ * Deletes rate from a user object
+ * 
+ * @param {*} userObject 
+ * @param {*} articleId 
+ * @param {*} rate 
+ */
+async function deleteRateFromUserObject(userObject, articleId, rate) {
+    try {
+        const newUserRatesObj = userObject[rate].filter(rateObj => rateObj.article.toString() != new mongoose.Types.ObjectId(articleId));
+        userObject[rate]      = newUserRatesObj;
+
+        await userObject.save();
+    } catch (error) {
+        console.error(error)
+    }
+}
+
+/**
+ * Deletes rate from an article object
+ * 
+ * @param {*} articleObject 
+ * @param {*} userId 
+ * @param {*} rate 
+ * @returns Promise
+ */
+function deleteRateFromArticleObject(articleObject, userId, rate) {
+    const newArticleRatesObj = articleObject[rate].filter(rateObj => rateObj.user.toString() != userId);
+    articleObject[rate]      = newArticleRatesObj;
+    
+    return articleObject.save();
+}
+
+/**
+ * Checks if user has already rated an article
+ * 
+ * @param {*} user 
+ * @param {*} article 
+ * @returns 
+ */
 module.exports.checkIfUserRatedAnArticle = function (user, article) {
     let userRates    = {
         isLikedByUser: false,

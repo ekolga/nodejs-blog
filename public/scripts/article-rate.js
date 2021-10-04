@@ -67,8 +67,6 @@ function updateClickEventListener(element, oldListenerMethod, newListenerMethod)
 
 /**
  * Sends the request for the like setting
- * 
- * @returns 
  */
 async function sendSetLike() {
     let response = await fetch(`/article/view/${articleId}/rating/setLike`, requestObj);
@@ -81,6 +79,7 @@ async function sendSetLike() {
     updateRateCounter('like', body.likes);
     updateRateCounter('dislike', body.dislikes);
     updateClickEventListener(likeButton, sendSetLike, sendUnsetLike);
+    updateClickEventListener(dislikeButton, sendUnsetDislike, sendSetDislike);
 }
 
 /**
@@ -98,7 +97,8 @@ async function sendSetDislike() {
 
     updateRateCounter('like', body.likes);
     updateRateCounter('dislike', body.dislikes);
-    updateClickEventListener(likeButton, sendSetDislike, sendUnsetDislike);
+    updateClickEventListener(dislikeButton, sendSetDislike, sendUnsetDislike);
+    updateClickEventListener(likeButton, sendUnsetLike, sendSetLike);
 }
 
 async function sendUnsetLike() {
@@ -124,9 +124,21 @@ async function sendUnsetDislike() {
 
     updateRateCounter('like', body.likes);
     updateRateCounter('dislike', body.dislikes);
-    updateClickEventListener(likeButton, sendUnsetDislike, sendSetDislike);
+    updateClickEventListener(dislikeButton, sendUnsetDislike, sendSetDislike);
 }
 
+/**
+ * Initial event listeners
+ */
 
-likeButton.addEventListener('click', sendSetLike)
-dislikeButton.addEventListener('click', sendSetDislike)
+if (document.querySelector('.like-button__filled')) {
+    likeButton.addEventListener('click', sendUnsetLike)
+} else {
+    likeButton.addEventListener('click', sendSetLike)
+}
+
+if (document.querySelector('.dislike-button__filled')) {
+    dislikeButton.addEventListener('click', sendUnsetDislike)
+} else {
+    dislikeButton.addEventListener('click', sendSetDislike)
+}

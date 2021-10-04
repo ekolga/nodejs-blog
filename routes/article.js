@@ -40,28 +40,44 @@ router.get('/view/:id', async (req, res) => {
  * Sets like to an article and to a user objects
  */
  router.post('/view/:id/rating/setLike', async (req, res) => {
-    setRate(req, res, 'like');
+    try {
+        setRate(req, res, 'like');
+    } catch (error) {
+        console.error(error);
+    }
 });
 
 /**
  * Sets dislike to an article and to a user objects
  */
 router.post('/view/:id/rating/setDislike', async (req, res) => {
-    setRate(req, res, 'dislike');
+    try {
+        setRate(req, res, 'dislike');
+    } catch (error) {
+        console.error(error);
+    }
 });
 
 /**
  * Removes like from an article and from a user objects
  */
 router.post('/view/:id/rating/unsetLike', async (req, res) => {
-    unsetRate(req, res, 'like')
+    try {
+        unsetRate(req, res, 'like');
+    } catch (error) {
+        console.error(error);
+    }
 });
 
 /**
  * Removes dislike from an article and from a user objects
  */
  router.post('/view/:id/rating/unsetDislike', async (req, res) => {
-    unsetRate(req, res, 'dislike')
+    try {
+        unsetRate(req, res, 'dislike');
+    } catch (error) {
+        console.error(error);
+    }
 });
 
 /**
