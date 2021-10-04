@@ -147,6 +147,8 @@ article {
 .article {
     margin-bottom: 30px;
     position: relative;
+    box-shadow: 1px 10px 10px lightgrey;
+    padding: 10px 10px 0px 10px;
 }
 
 .article__additional-info {
@@ -174,6 +176,10 @@ article {
     justify-content: flex-end;
 }
 
+.article__more-button {
+    padding-bottom: 5px;
+    font-weight: 800;
+}
 /* 5. Footer*/
 .footer-container {
     float: left;

@@ -129,6 +129,9 @@ function changeIcon(isLike, toFill) {
     }
 }
 
+/**
+ * Asks user to log in if he/she wants to rate an article
+ */
 function askForLogin() {
     createAlertElement(false, 'Please, log in to rate this article')
 }
