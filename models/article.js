@@ -17,6 +17,18 @@ const articleSchema   = new Schema({
         text: String, 
         date: String 
     }],
+    likes: [{
+        user: {
+            type: Schema.Types.ObjectId,
+            ref: 'User'
+        },
+    }],
+    dislikes: [{
+        user: {
+            type: Schema.Types.ObjectId,
+            ref: 'User'
+        },
+    }],
     tags: String,
     created_at: {
         type: Date,
@@ -27,10 +39,6 @@ const articleSchema   = new Schema({
         type: Boolean,
         default: false
     },
-    favorites: {
-        type: Number,
-        default: 0
-    }
 });
 
 module.exports = model('Article', articleSchema)

@@ -1,33 +1,107 @@
-const { Router }           = require('express');
-const router               = Router();
-const Article              = require('../models/article');
-const fnsDate              = require('date-fns/format')
-const mongoose             = require('mongoose');
-const adminCheck           = require('../middlewares/adminCheck.js');
-const User                 = require('../models/user');
-const validators           = require('../utils/validators');
-const { validationResult } = require('express-validator');
+const { Router }             = require('express');
+const router                 = Router();
+const Article                = require('../models/article');
+const fnsDate                = require('date-fns/format')
+const mongoose               = require('mongoose');
+const adminCheck             = require('../middlewares/adminCheck.js');
+const User                   = require('../models/user');
+const validators             = require('../utils/validators');
+const { validationResult }   = require('express-validator');
+const { setRate, unsetRate, checkIfUserRatedAnArticle } = require('../utils/helper');
+// End of imports
 
-// View an article and comments to it
+/**
+ * Shows an article and all comments to it
+ */
 router.get('/view/:id', async (req, res) => {
     try {
-        const article         = await Article.findById(req.params.id).populate('comments.user', 'email name').lean();
-        const articleComments = article.comments;
-    
+        const article = await Article.findById(req.params.id).populate('comments.user', 'email name').lean();
+        let userRates = checkIfUserRatedAnArticle(req.session.user, article);
+
+
         res.render('article', {
             title: article.title,
             user: req.session.user,
             error: req.flash('error'),
             success: req.flash('success'),
             article,
-            articleComments
+            articleComments: article.comments,
+            likes: article.likes.length,
+            dislikes: article.dislikes.length,
+            isLikedByUser: userRates.isLikedByUser,
+            isDislikedByUser: userRates.isDislikedByUser
         })
     } catch (error) {
         console.error(error);
     }
-})
+});
 
-// Post a comment
+/**
+ * Sets like to an article and to a user objects
+ */
+ router.post('/view/:id/rating/setLike', async (req, res) => {
+    try {
+        setRate(req, res, 'like');
+    } catch (error) {
+        console.error(error);
+    }
+});
+
+/**
+ * Sets dislike to an article and to a user objects
+ */
+router.post('/view/:id/rating/setDislike', async (req, res) => {
+    try {
+        setRate(req, res, 'dislike');
+    } catch (error) {
+        console.error(error);
+    }
+});
+
+/**
+ * Removes like from an article and from a user objects
+ */
+router.post('/view/:id/rating/unsetLike', async (req, res) => {
+    try {
+        unsetRate(req, res, 'like');
+    } catch (error) {
+        console.error(error);
+    }
+});
+
+/**
+ * Removes dislike from an article and from a user objects
+ */
+ router.post('/view/:id/rating/unsetDislike', async (req, res) => {
+    try {
+        unsetRate(req, res, 'dislike');
+    } catch (error) {
+        console.error(error);
+    }
+});
+
+/**
+ * Returns number of rates to the specified article
+ */
+router.route('/view/:id/rating')
+    .get(async (req, res) => {
+        try {
+            const article  = await Article.findById(req.params.id).lean();
+            const likes    = article.likes.length;
+            const dislikes = article.dislikes.length;
+
+            res.end(JSON.stringify({
+                likes,
+                dislikes
+            }))
+        } catch (error) {
+            console.error(error);
+        }
+    });
+
+/**
+ * Writes a comment to an article and a user objects
+ */
 router.post('/view/:id/post-comment', validators.commentValidator, async (req, res) => {
     try {
         // Add a comment to an article

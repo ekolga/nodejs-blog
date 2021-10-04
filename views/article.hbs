@@ -4,7 +4,7 @@
     <p class="alert error">{{this}}</p>
     {{/each}}
     {{/if}}
-    
+
     {{#if success.length}}
     {{#each success}}
     <p class="alert success">{{this}}</p>
@@ -19,6 +19,24 @@
         <article>
             {{{article.text}}}
         </article>
+        <div class="post__full__buttons">
+            <a class="post__full__like-button">
+                {{#if isLikedByUser}}
+                <img src="/icons/heart-fill.svg" alt="" class="like-button__filled">
+                {{else}}
+                <img src="/icons/heart.svg" alt="" class="like-button">
+                {{/if}}
+                <span class="post__full__like-counter">{{likes}}</span>
+            </a>
+            <a class="post__full__dislike-button">
+                {{#if isDislikedByUser}}
+                <img src="/icons/emoji-sad-fill.svg" class="dislike-button__filled">
+                {{else}}
+                <img src="/icons/emoji-sad.svg" class="dislike-button">
+                {{/if}}
+                <span class="post__full__dislike-counter">{{dislikes}}</span>
+            </a>
+        </div>
         {{#if isAdmin}}
         <div class="post__admin-operations">
             <a class="post__admin-operations__edit-btn" href="/article/edit/{{article._id}}">Edit</a>
@@ -51,12 +69,15 @@
                 <div class="row">
                     <div class="input-field">
                         <label for="username">Your name:</label>
-                        <input id="username" name='username' class="post-new-comment__username" value="{{user.name}}" maxlength="70" disabled required></input>
-                        <input id="email" name='email' class="post-new-comment__email" type="hidden" value="{{user.email}}" required></input>
+                        <input id="username" name='username' class="post-new-comment__username" value="{{user.name}}"
+                            maxlength="70" disabled required></input>
+                        <input id="email" name='email' class="post-new-comment__email" type="hidden"
+                            value="{{user.email}}" required></input>
                         <input name="_csrf" type="hidden" value="{{csrf}}">
                         <br>
                         <label for="text">Your comment:</label>
-                        <textarea id="text" name='text' class="post-new-comment__text" minlength="5" maxlength="1000" required></textarea>
+                        <textarea id="text" name='text' class="post-new-comment__text" minlength="5" maxlength="1000"
+                            required></textarea>
                     </div>
 
                     <button class="btn post-new-comment">Post the comment</button>

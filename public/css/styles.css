@@ -147,30 +147,39 @@ article {
 .article {
     margin-bottom: 30px;
     position: relative;
+    box-shadow: 1px 10px 10px lightgrey;
+    padding: 10px 10px 0px 10px;
+}
+
+.article__additional-info {
+    margin: 10px 0 10px 0;
 }
 
 .article__post-date {
-    font-size: 15px;
-    margin-top: 10px;
-    margin-bottom: 10px;
+    font-size: 14px;
+    float: left;
 }
 
 .article__preview {
-    margin-bottom: 30px;
+    margin-bottom: 20px;
 }
 
-.article__like-button, .article__comment-button, .article__more-button {
-    margin-left: 10px;
-    margin-right: 10px;
+.article__like-button, .article__comment-button, .article__dislike-button {
+    margin-left: 5px;
+    margin-right: 5px;
 
     text-decoration: none;
 }
 
-.article__more-button {
-    position: absolute;
-    right: 0;
+.article__rates, .article__more-button {
+    display: flex;
+    justify-content: flex-end;
 }
 
+.article__more-button {
+    padding-bottom: 5px;
+    font-weight: 800;
+}
 /* 5. Footer*/
 .footer-container {
     float: left;
@@ -210,6 +219,32 @@ article {
 .post__admin-operations__edit-btn {
     text-align: center;
     border: 1px solid gray;
+}
+
+.post__full__buttons {
+    margin: 10px;
+
+    display: flex;
+    text-decoration: none;
+    justify-content: right;
+}
+
+.post__full__buttons > a{
+    margin: 0 10px 0 10px;
+}
+
+.post__full__buttons > a.disabled{
+    pointer-events: none;
+}
+
+img.like-button__filled, img.dislike-button__filled {
+    width: 20px;
+    height: 20px;
+}
+
+img.like-button, img.dislike-button {
+    width: 20px;
+    height: 20px;
 }
 
 /* 7. Comments section */
