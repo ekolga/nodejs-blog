@@ -9,14 +9,15 @@ const filledSadIcon      = '/icons/emoji-sad-fill.svg';
 const likeButtonImg      = document.querySelector(`${likeButtonClass} img`);
 const dislikeButtonImg   = document.querySelector(`${dislikeButtonClass} img`);
 const articleId          = window.location.pathname.split('/')[3];
-const user               = {};
-user.email               = (document.querySelector('input#email')) ? document.querySelector('input#email').value : null
+const query              = {};
+query.email              = (document.querySelector('input#email')) ? document.querySelector('input#email').value : null
+query["_csrf"]           = (document.querySelector('input[name="_csrf"]')) ? document.querySelector('input[name="_csrf"]').value : null
 let requestObj           = {
     method: 'POST',
     headers: {
         'Content-Type': 'application/x-www-form-urlencoded'
     },
-    body: new URLSearchParams(user)
+    body: new URLSearchParams(query)
 }
 
 
@@ -203,7 +204,7 @@ async function sendUnsetDislike() {
 /**
  * Initial event listeners
  */
-if (!user.email) {
+if (!query.email) {
     likeButton.addEventListener('click', askForLogin)
     dislikeButton.addEventListener('click', askForLogin)
 } else {

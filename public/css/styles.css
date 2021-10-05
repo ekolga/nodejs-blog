@@ -137,7 +137,7 @@ header {
 .body-content {
     float: left;
     max-width: 80%;
-    padding: 20px;
+    padding: 20px 0 20px 20px;
 }
 
 article {

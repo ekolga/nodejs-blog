@@ -42,9 +42,9 @@ app.use(session({
     store
 }));
 
-// CSRF defence adding
+// CSRF protection adding
 app.use(csrf({
-    ignoreMethods: ['GET', 'HEAD', 'OPTIONS', 'POST']
+    // ignoreMethods: ['GET', 'HEAD', 'OPTIONS', 'POST']
 }));
 
 // Middleware for transportation errors to views
