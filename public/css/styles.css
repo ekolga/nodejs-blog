@@ -7,7 +7,10 @@
 6. Article page
 7. Comments section
 8. Auth page 
-9. Adaptive design start
+9. 404 page
+10. 500 page
+11. Contact me page
+12. Adaptive design start
 */
 
 
@@ -356,7 +359,81 @@ p.comments__no-comments {
     background-color: #f5a5a5;
 }
 
-/* 9. Adaptive design start */
+/* 9. 404 page */
+
+.page_404__to-the-main {
+    color: blue;
+    text-decoration: underline;
+}
+
+/* 10. 500's page */
+
+.page_500 p {
+    margin: 10px 0 10px 0;
+}
+
+/* 11. Contact me page */
+
+.contact-me p {
+    margin: 10px 0 10px 0;
+}
+
+.contact-me .title {
+    display: flex;
+    justify-content: left;
+}
+
+.contact-me #profile__profile-logo {
+    width: 500px;
+    max-width: 100%;
+}
+
+.contact-me .profile__user-photo {
+    display: flex;
+    justify-content: center;
+    padding: 20px 0 10px 0;
+}
+
+.contact-me .profile__user-name {
+    font-size: 16px;
+    font-weight: 700;
+    display: flex;
+    justify-content: center;
+}
+
+.contact-me .profile__speciality {
+    font-size: 16px;
+    font-weight: 700;
+    display: flex;
+    justify-content: center;
+}
+
+.contact-me__media-buttons {
+    display: flex;
+    justify-content: space-between;
+    padding-right: 10px;
+    padding-left: 10px;
+    padding-top: 10px;
+}
+
+.contact-me__telegram {
+    fill: #60b5ff;
+}
+
+.contact-me__linkedin {
+    fill: #0a66c2
+}
+
+.contact-me__instagram {
+    fill: #e437b0
+}
+
+.contact-me__facebook {
+    fill: #4267B2
+}
+
+
+/* 12. Adaptive design start */
 @media (max-width: 1200px) {
     .main-container {
         max-width: 970px;
@@ -376,6 +453,28 @@ p.comments__no-comments {
         justify-content: space-between;
         padding-right: 5px;
         padding-left: 5px;
+    }
+
+    .contact-me .title {
+        display: flex;
+        justify-content: left;
+    }
+    
+    .contact-me #profile__profile-logo {
+        width: 450px;
+        max-width: 100%;
+    }
+    
+    .contact-me .profile__user-photo {
+        display: flex;
+        justify-content: center;
+        padding: 10px 0 5px 0;
+    }
+    
+    .contact-me .profile__titles {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 10px;
     }
 }
 
@@ -422,77 +521,25 @@ p.comments__no-comments {
     .post {
         max-width: 100%;
     }
-}
 
-/* 10. 404 page */
-
-.page_404__to-the-main {
-    color: blue;
-    text-decoration: underline;
-}
-
-/* 11. 500's page */
-
-.page_500 p {
-    margin: 10px 0 10px 0;
-}
-
-/* 12. Contact me page */
-
-.contact-me p {
-    margin: 10px 0 10px 0;
-}
-
-.contact-me .title {
-    display: flex;
-    justify-content: center;
-}
-
-.contact-me #profile__profile-logo {
-    width: 250px;
-    max-width: 100%;
-}
-
-.contact-me .profile__user-photo {
-    display: flex;
-    justify-content: center;
-    padding: 10px 0 5px 0;
-}
-
-.contact-me .profile__user-name {
-    font-size: 16px;
-    font-weight: 700;
-    display: flex;
-    justify-content: center;
-}
-
-.contact-me .profile__speciality {
-    font-size: 16px;
-    font-weight: 700;
-    display: flex;
-    justify-content: center;
-}
-
-.contact-me__media-buttons {
-    display: flex;
-    justify-content: space-between;
-    padding-right: 10px;
-    padding-left: 10px;
-    padding-top: 10px;
-}
-
-.contact-me__telegram {
-    fill: #60b5ff;
-}
-
-.contact-me__linkedin {
-    fill: #0a66c2
-}
-
-.contact-me__instagram {
-    fill: #e437b0
-}
-
-.contact-me__facebook {
-    fill: #4267B2
+    .contact-me .title {
+        display: flex;
+        justify-content: center;
+    }
+    
+    .contact-me #profile__profile-logo {
+        width: 300px;
+    }
+    
+    .contact-me .profile__user-photo {
+        display: flex;
+        justify-content: center;
+        padding: 10px 0 5px 0;
+    }
+    
+    .contact-me .profile__titles {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 10px;
+    }
 }
