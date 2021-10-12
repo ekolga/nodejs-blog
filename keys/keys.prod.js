@@ -1,7 +1,7 @@
 module.exports = {
     secret: process.env.secret,
     MONGODB_URI: process.env.MONGODB_URI,
-    EMAIL_PASS: process.env.EMAIL_PASS,
+    EMAIL_API_KEY: process.env.EMAIL_API_KEY,
     SENDER_EMAIL: process.env.SENDER_EMAIL,
     BASE_URL: process.env.BASE_URL
 }

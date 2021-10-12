@@ -1,4 +1,5 @@
 const nodemailer           = require('nodemailer');
+const sendGridTransport    = require('nodemailer-sendgrid-transport');
 const keys                 = require('../keys');
 const registerEmailConfig  = require('../emails/registration');
 const passResetEmailConfig = require('../emails/password-reset');
@@ -7,13 +8,11 @@ const { randomBytes }      = require('crypto');
 /**
  * Some kind of tunnel for emails
  */
-const trasporter = nodemailer.createTransport({
-    service: 'gmail',
+const trasporter = nodemailer.createTransport(sendGridTransport({
     auth: {
-        user: keys.SENDER_EMAIL,
-        pass: keys.EMAIL_PASS
+        api_key: keys.EMAIL_API_KEY
     }
-});
+}));
 
 /**
  * Generates and returns pseudorandom token
