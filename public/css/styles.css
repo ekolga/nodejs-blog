@@ -400,6 +400,7 @@ p.comments__no-comments {
 
     .body-content {
         max-width: 100%;
+        padding: 10px;
     }
 
     header {
@@ -442,6 +443,35 @@ p.comments__no-comments {
     margin: 10px 0 10px 0;
 }
 
+.contact-me .title {
+    display: flex;
+    justify-content: center;
+}
+
+.contact-me #profile__profile-logo {
+    width: 250px;
+    max-width: 100%;
+}
+
+.contact-me .profile__user-photo {
+    display: flex;
+    justify-content: center;
+    padding: 10px 0 5px 0;
+}
+
+.contact-me .profile__user-name {
+    font-size: 16px;
+    font-weight: 700;
+    display: flex;
+    justify-content: center;
+}
+
+.contact-me .profile__speciality {
+    font-size: 16px;
+    font-weight: 700;
+    display: flex;
+    justify-content: center;
+}
 
 .contact-me__media-buttons {
     display: flex;
