@@ -1,6 +1,6 @@
 const { body, param } = require('express-validator');
 const User            = require('../models/user');
-const helper          = require('./helper');
+const emailHelper     = require('./email-helper');
 const bcrypt          = require('bcryptjs');
 
 exports.registerValidator = [
@@ -38,7 +38,11 @@ exports.loginValidator = [
             }
 
             if (!existedUser.isActivated) {
-                helper.sendMailWithNewRegistrationToken(existedUser);
+                const token                   = emailHelper.getToken();
+                existedUser.registrationToken = token;
+            
+                await emailHelper.sendRegistrationEmail(existedUser.email, token);
+                await existedUser.save();
 
                 return Promise.reject(`User isn't activated yet. Please, check your email, we've resent the activation code.`)
             }

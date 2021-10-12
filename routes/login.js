@@ -1,23 +1,11 @@
 const { Router }           = require('express');
 const router               = Router();
-const crypto               = require('crypto');
 const bcrypt               = require('bcryptjs');
 const User                 = require('../models/user');
-const nodemailer           = require('nodemailer');
-const sendgrid             = require('nodemailer-sendgrid-transport');
-const keys                 = require('../keys');
-const registerEmailConfig  = require('../emails/registration');
-const passResetEmailConfig = require('../emails/password-reset');
+const emailHelper          = require('../utils/email-helper');
 const validators           = require('../utils/validators');
 const { validationResult } = require('express-validator');
 // End of imports
-
-/**
- * Email sender
- */
-const trasporter = nodemailer.createTransport(sendgrid({
-    auth: { api_key: keys.EMAIL_API_KEY }
-}));
 
 /**
  * Main auth page
@@ -52,30 +40,22 @@ router.route('/register')
                 return res.status(422).redirect('/auth/register');
             }
 
-            crypto.randomBytes(32, async (err, buf) => {
-                if (err) {
-                    req.flash('error', 'Something went wrong. Please, try again and contact me to fix that issue.');
+            const hashedPassword = await bcrypt.hash(password, 10);
+            const token          = emailHelper.getToken();
+            const user           = new User({
+                email,
+                password: hashedPassword,
+                name,
+                comments: [],
+                registrationToken: token
+            });
+        
+            await user.save();
+        
+            req.flash('success', 'Your account has been successfully created! However, you cannot log in yet. Check your email to finish the registration process.')
+            res.redirect('login');
 
-                    return res.redirect('register');
-                }
-
-                const hashedPassword = await bcrypt.hash(password, 10);
-                const token          = buf.toString('hex');
-                const user           = new User({
-                    email,
-                    password: hashedPassword,
-                    name,
-                    comments: [],
-                    registrationToken: token
-                });
-
-                await user.save();
-
-                req.flash('success', 'Your account has been successfully created! However, you cannot log in yet. Check your email to finish the registration process.')
-                res.redirect('login');
-
-                await trasporter.sendMail(registerEmailConfig(email, token));
-            })
+            await emailHelper.sendRegistrationEmail(email, token);
         } catch (error) {
             console.error(error);
         }
@@ -188,22 +168,16 @@ router.route('/password-reset')
                 return res.status(422).redirect('password-reset');
             }
 
-            crypto.randomBytes(32, async (err, buf) => {
-                if (err) {
-                    req.flash('error', 'Something went wrong. Please, try again and contact me to fix that issue.');
+            const token                     = emailHelper.getToken();
+            user.restoreToken               = token;
+            user.restoreTokenExpirationDate = Date.now() + 60 * 60 * 1000;
+            
+            await user.save();
 
-                    return res.redirect('password-reset');
-                }
+            req.flash('success', 'A letter with further instructions has been sent to your email.');
+            res.redirect('login');
 
-                const token                     = buf.toString('hex');
-                user.restoreToken               = token;
-                user.restoreTokenExpirationDate = Date.now() + 60 * 60 * 1000;
-                
-                await user.save();
-                req.flash('success', 'A letter with further instructions has been sent to your email.');
-                res.redirect('login');
-                await trasporter.sendMail(passResetEmailConfig(email, token));
-            })
+            await emailHelper.sendResetPasswordMail(email, token);
         } catch (error) {
             console.error(error);
         }
@@ -266,7 +240,7 @@ router.post('/password-reset-confirm', validators.resetPasswordValidator, async 
 
         await user.save();
 
-        req.flash('success', 'Your password has been successfully restored!');
+        req.flash('success', 'Access to your account has been successfully restored! Please log in with your new password.');
         res.redirect('login');
     });
 
