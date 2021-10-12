@@ -117,9 +117,7 @@ router.post('/view/:id/post-comment', validators.commentValidator, async (req, r
         const validationErrors = validationResult(req).errors;
         
         if (validationErrors.length) {
-            validationErrors.forEach(error => {
-                req.flash('error', error.msg);
-            });
+            req.flash('error', validationErrors[0].msg);
 
             return res.status(422).redirect(`/article/view/${req.params.id}`);
         }
@@ -148,7 +146,9 @@ router.post('/view/:id/post-comment', validators.commentValidator, async (req, r
     }
 })
 
-// Add a new article
+/**
+ * Adds a new article
+ */
 router.route('/add')
 .get(adminCheck, (req, res) => {
     res.render('add-article', {
@@ -179,7 +179,9 @@ router.route('/add')
     }
 });
 
-// Edit an article
+/**
+ * Edits an article
+ */
 router.route('/edit/:id')
 .get(adminCheck, async (req, res) => {
     const article = await Article.findById(req.params.id).lean();
@@ -193,7 +195,7 @@ router.route('/edit/:id')
     const { id } = req.body;
     delete req.body.id;
     
-    req.body.shortText = shortenTheText(req.body.text); // Remake the short text too
+    req.body.shortText = shortenTheText(req.body.text);
 
     try {
         await Article.findByIdAndUpdate(id, req.body);
@@ -204,7 +206,9 @@ router.route('/edit/:id')
     }
 });
 
-// Delete an article
+/**
+ * Deletes an article
+ */
 router.post('/delete/:id', adminCheck, async (req, res) => {
     try {
         await Article.findByIdAndDelete(req.body.id);
@@ -215,7 +219,12 @@ router.post('/delete/:id', adminCheck, async (req, res) => {
     }
 })
 
-// Helper functions
+/**
+ * Makes provided text shorter and adds elipsis to the end of it
+ * 
+ * @param {string} text 
+ * @returns 
+ */
 let shortenTheText = function(text) {
     const limit   = 700;
     const endChar = '…'

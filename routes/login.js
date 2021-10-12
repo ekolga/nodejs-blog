@@ -33,9 +33,7 @@ router.route('/register')
             const validationErrors          = validationResult(req).errors;
 
             if (validationErrors.length) {
-                validationErrors.forEach(error => {
-                    req.flash('error', error.msg);
-                });
+                req.flash('error', validationErrors[0].msg);
 
                 return res.status(422).redirect('/auth/register');
             }
@@ -73,9 +71,7 @@ router.route('/register/confirm/:token')
         const validationErrors = validationResult(req).errors;
 
         if (validationErrors.length) {
-            validationErrors.forEach(error => {
-                req.flash('error', error.msg);
-            });
+            req.flash('error', validationErrors[0].msg);
 
             return res.status(422).redirect('/auth/login');
         }
@@ -122,9 +118,7 @@ router.route('/login')
             const validationErrors = validationResult(req).errors;
 
             if (validationErrors.length) {
-                validationErrors.forEach(error => {
-                    req.flash('error', error.msg);
-                });
+                req.flash('error', validationErrors[0].msg);
 
                 return res.status(422).redirect('/auth/login');
             }
@@ -161,9 +155,7 @@ router.route('/password-reset')
             const validationErrors = validationResult(req).errors;
 
             if (validationErrors.length) {
-                validationErrors.forEach(error => {
-                    req.flash('error', error.msg);
-                });
+                req.flash('error', validationErrors[0].msg);
 
                 return res.status(422).redirect('password-reset');
             }
@@ -191,9 +183,7 @@ router.route('/password-reset/:token')
         const validationErrors = validationResult(req).errors;
 
         if (validationErrors.length) {
-            validationErrors.forEach(error => {
-                req.flash('error', error.msg);
-            });
+            req.flash('error', validationErrors[0].msg);
 
             return res.status(422).redirect('/auth/login');
         }
@@ -222,9 +212,7 @@ router.post('/password-reset-confirm', validators.resetPasswordValidator, async 
         const validationErrors = validationResult(req).errors;
         
         if (validationErrors.length) {
-            validationErrors.forEach(error => {
-                req.flash('error', error.msg);
-            });
+            req.flash('error', validationErrors[0].msg);
             
             return res.status(422).redirect(`/auth/password-reset/${req.body.token}`);
         }
